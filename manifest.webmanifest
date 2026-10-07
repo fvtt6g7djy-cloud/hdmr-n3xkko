@@ -1,0 +1,16 @@
+{
+  "name": "透析 内服薬レビュー",
+  "short_name": "透析薬レビュー",
+  "description": "血液透析患者の検査値から内服薬の調整候補を提示する判断支援ツール（個人の参考用）",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#2f6fb3",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,0 +1,1199 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#2f6fb3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="透析薬レビュー">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<title>透析処方レビュー</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--text:#1d2330;--muted:#5f6878;--line:#dde1e7;--accent:#2f6fb3;--input:#fff;
+--danger:#b42318;--danger-bg:#fdecea;--warn:#9a5800;--warn-bg:#fff3dc;--info:#1f5f99;--info-bg:#e8f1fb;--ok:#1e7a44;--ok-bg:#e6f5eb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171c;--panel:#1c2027;--text:#e6e9ee;--muted:#9aa3b2;--line:#2e343e;--accent:#6aa5e8;--input:#232832;
+--danger:#ff8a80;--danger-bg:#3a1f1d;--warn:#f5b94f;--warn-bg:#3a2e17;--info:#8fc1f5;--info-bg:#1a2a3c;--ok:#6fd49a;--ok-bg:#16301f}}
+:root[data-theme="dark"]{--bg:#14171c;--panel:#1c2027;--text:#e6e9ee;--muted:#9aa3b2;--line:#2e343e;--accent:#6aa5e8;--input:#232832;
+--danger:#ff8a80;--danger-bg:#3a1f1d;--warn:#f5b94f;--warn-bg:#3a2e17;--info:#8fc1f5;--info-bg:#1a2a3c;--ok:#6fd49a;--ok-bg:#16301f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 "Yu Gothic UI","Hiragino Sans","Meiryo",system-ui,sans-serif}
+header{padding:14px 20px;border-bottom:1px solid var(--line);background:var(--panel);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+header h1{font-size:18px;margin:0}
+header .sub{color:var(--muted);font-size:12px}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+button,.filebtn{font:inherit;font-size:13px;padding:6px 12px;border:1px solid var(--line);background:var(--input);color:var(--text);border-radius:6px;cursor:pointer}
+button.danger-btn{background:var(--danger);border-color:var(--danger);color:#fff}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+@media (max-width:980px){.wrap{grid-template-columns:1fr;padding:12px 16px}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.card h3{font-size:13px;margin:12px 0 6px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px 12px}
+label.f{display:flex;flex-direction:column;font-size:12px;color:var(--muted);gap:3px}
+input[type=number],input[type=text],select{font:inherit;font-size:14px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--input);color:var(--text);width:100%}
+.flags{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px}
+.flags label,.med label{display:flex;align-items:center;gap:5px;cursor:pointer}
+table.labs{width:100%;border-collapse:collapse}
+table.labs th{font-size:12px;color:var(--muted);text-align:left;font-weight:600;padding:4px}
+table.labs td{padding:3px 4px;border-top:1px solid var(--line)}
+table.labs td.n{width:24%}
+table.labs td.u{font-size:12px;color:var(--muted);width:13%}
+table.labs tr.g td{font-weight:700;font-size:12px;color:var(--accent);border-top:none;padding-top:10px}
+.medgrp{margin-bottom:8px}
+.medgrp .t{font-size:12px;font-weight:700;color:var(--accent);margin:8px 0 4px}
+.med{display:grid;grid-template-columns:1fr auto 150px;gap:6px;align-items:center;padding:2px 0}
+.fxbtn{font-size:11.5px;padding:2px 8px;color:var(--accent)}
+.fxbox{grid-column:1/-1;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12.5px;margin:2px 0 4px}
+.fxs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
+.fx{font-size:12px;font-weight:700;padding:1px 7px;border-radius:4px;background:var(--panel);border:1px solid var(--line)}
+.fx.dn{color:var(--info);background:var(--info-bg);border-color:transparent}
+.fx.up{color:var(--warn);background:var(--warn-bg);border-color:transparent}
+input.auto{background:var(--bg);color:var(--accent);font-weight:700}
+.med select{font-size:12px;padding:3px 4px;width:150px}
+.med select:disabled{opacity:.35}
+.med input.doseother{grid-column:1/-1;font-size:12px;padding:3px 6px;justify-self:end;width:260px;max-width:100%}
+.med label{align-items:flex-start}.med label input{margin-top:4px}
+.bn{display:block;font-size:11.5px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:6px;padding:4px 8px;font-size:12px;border:1px solid var(--line)}
+.chip b{font-size:14px}
+.chip.danger{background:var(--danger-bg);color:var(--danger);border-color:transparent}
+.chip.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.chip.ok{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.summary span{font-size:12px;padding:3px 9px;border-radius:12px}
+.item{display:grid;grid-template-columns:62px 1fr;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:none}
+.tag{font-size:12px;font-weight:700;text-align:center;border-radius:5px;padding:2px 0;align-self:start}
+.danger .tag,.tag.danger{background:var(--danger-bg);color:var(--danger)}
+.warn .tag,.tag.warn{background:var(--warn-bg);color:var(--warn)}
+.info .tag,.tag.info{background:var(--info-bg);color:var(--info)}
+.ok .tag,.tag.ok{background:var(--ok-bg);color:var(--ok)}
+.item .why{color:var(--muted);font-size:12.5px;margin-top:2px;white-space:pre-line}
+.rk{display:grid;grid-template-columns:26px 1fr;gap:6px;border-top:1px solid var(--line)}
+.rk:first-child{border-top:none}.rk .item{border-top:none}
+.rk .no{font-weight:700;color:var(--accent);padding-top:9px;text-align:right}
+.dm{font-size:11px;color:var(--muted)}
+.plan{font-size:13px;margin-top:4px;padding:4px 8px;border-left:3px solid var(--accent);background:var(--info-bg);border-radius:0 4px 4px 0}
+.nt{font-size:12.5px;margin-top:3px;padding:2px 6px;border-radius:4px}
+.nt.serious{color:var(--danger);background:var(--danger-bg);font-weight:700}
+.nt.comp,.nt.trade{color:var(--muted);background:var(--bg)}
+.nt.sup,.nt.max{color:var(--warn);background:var(--warn-bg)}
+.item.sup{opacity:.55}
+.refs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.refs a{font-size:11px;color:var(--accent);border:1px solid var(--line);border-radius:4px;padding:0 6px;text-decoration:none}
+#evidence li{margin-bottom:6px}#evidence a{color:var(--accent)}
+#evidence li:target{background:var(--info-bg);border-radius:4px}
+.note{font-size:12px;color:var(--muted)}
+textarea{width:100%;min-height:180px;font:12.5px/1.5 Consolas,"MS Gothic",monospace;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px}
+details summary{cursor:pointer;font-weight:600}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px 10px;margin-top:10px}
+.primary-l{background:var(--accent);border-color:var(--accent);color:#fff}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;padding:24px 12px;z-index:50;overflow:auto}
+.modal[hidden]{display:none}
+.modal .box{background:var(--panel);color:var(--text);border-radius:12px;max-width:760px;width:100%;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.modal h2{font-size:16px;margin:0 0 8px}
+.ocr-top{margin-top:8px}
+table.ocr{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+table.ocr th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;padding:4px}
+table.ocr td{border-top:1px solid var(--line);padding:4px;vertical-align:top}
+table.ocr input[type=number]{width:90px}
+table.ocr .src{color:var(--muted);font-size:11.5px;word-break:break-all}
+table.ocr .bad{color:var(--danger);font-size:11.5px}
+.ocr-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.mnav{display:none}
+@media (max-width:980px){
+ body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+ header{padding-top:calc(12px + env(safe-area-inset-top))}
+ .mnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--panel);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));gap:6px}
+ .mnav button{flex:1;font-size:14px;padding:9px 4px}
+ .mnav .cnt{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--danger);color:#fff;font-size:12px}
+ header .btns button,header .btns .filebtn{font-size:13px;padding:7px 10px}
+ .med{grid-template-columns:1fr auto}
+ .med select{grid-column:1/-1;width:100%}
+ .med select:disabled{display:none}
+}
+/* iPhone で入力時に自動ズームしないよう 16px 以上 */
+@media (max-width:980px){input[type=number],input[type=text],select,textarea{font-size:16px}}
+.disclaimer{font-size:12px;color:var(--warn);background:var(--warn-bg);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+@media print{header .btns,#formCol,.noprint{display:none!important}.wrap{grid-template-columns:1fr}body{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>血液透析患者 内服薬レビュー支援</h1>
+    <div class="sub">検査値から 追加・中止・用量調整 の検討候補を提示（CKD-MBD GL2025・腎性貧血GL2025・糖尿病治療ガイド2025・最新RCT／日本の保険診療ベース）</div>
+  </div>
+  <div class="btns">
+    <button id="btnPasteImport" class="primary">貼り付けで取込</button>
+    <button id="btnSample">サンプル入力</button>
+    <button id="btnSave">JSON保存</button>
+    <label class="filebtn">JSON読込<input type="file" id="fileLoad" accept=".json" hidden></label>
+    <button id="btnClear">クリア</button>
+    <button id="btnPrint">印刷</button>
+  </div>
+</header>
+
+<div class="wrap">
+<div id="formCol">
+  <div class="card">
+    <h2>患者情報</h2>
+    <div class="grid2">
+      <label class="f">識別ラベル（通し番号等・カルテIDは入力しない）<input type="text" id="p_label"></label>
+      <label class="f">検査日<input type="text" id="p_date" placeholder="2026-10-07"></label>
+      <label class="f">年齢<input type="number" id="p_age"></label>
+      <label class="f">DW (kg)<input type="number" id="p_dw" step="any"></label>
+      <label class="f">透析液Ca (mEq/L)
+        <select id="p_dialca"><option value="">未選択</option><option>2.5</option><option>2.75</option><option>3.0</option></select></label>
+      <label class="f">PTH測定法
+        <select id="p_pthassay"><option value="intact">intact PTH</option><option value="whole">whole PTH（×1.7でintact換算）</option></select></label>
+    </div>
+    <div class="flags" id="flags"></div>
+    <p class="note">採血は週初め（中2日）透析前値を想定しています。</p>
+  </div>
+
+  <div class="card">
+    <h2>検査値</h2>
+    <table class="labs" id="labTable">
+      <thead><tr><th>項目</th><th>今回</th><th>前回</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p class="note">spKt/V は Daugirdas 第2世代式で自動計算：−ln(R − 0.008×t) + (4 − 3.5R)×UF/W（R＝透析後BUN/透析前BUN、t＝透析時間、UF＝除水量L、W＝透析後体重kg。透析後体重が空欄ならDWで代用）。TSATは Fe/TIBC×100 で自動計算（Fe・TIBCがない場合のみ手入力）。補正Ca は Payne式（Alb&lt;4.0 のとき Ca + (4 − Alb)）。</p>
+  </div>
+
+  <div class="card">
+    <h2 style="display:flex;justify-content:space-between;align-items:center">現在の処方 <button type="button" id="btnFxAll" class="fxbtn">作用をすべて表示</button></h2>
+    <div id="medList"></div>
+    <p class="note">注射薬（ESA・静注VDRA・静注カルシミメティクス・静注鉄）も判断に影響するため含めています。用量はプルダウンから選択（代表的な用量。該当がなければ「その他（自由入力）」）。「（最大）」は透析患者での最大量、「（透析で過量）」「（透析で禁忌）」を選ぶと用量チェックで警告します。商品名は代表例です（後発品・同効薬あり）。</p>
+  </div>
+
+  <div class="card noprint">
+    <details>
+      <summary>目標値・閾値の設定（施設基準に合わせて変更可）</summary>
+      <div class="tgrid" id="tgrid"></div>
+      <div style="margin-top:8px"><button id="btnResetT">初期値に戻す</button></div>
+    </details>
+  </div>
+</div>
+
+<div id="resCol">
+  <div class="disclaimer">本ツールは個人の診療参考用に作成したもので、医療機器ではありません。診療ガイドラインに基づく簡易ルールによる<b>検討候補の提示</b>です。最終判断は症状・経過・透析条件・残腎機能・添付文書を踏まえて医師が行ってください。</div>
+  <div class="card">
+    <h2>検査値サマリー</h2>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="card" id="rankCard">
+    <h2>対応の優先順位</h2>
+    <p class="note" style="margin-top:0">安全性（禁忌・重篤）→ K → P・Ca → 透析量 → 貧血 → 酸塩基 → PTH → その他 の順（CKD-MBD GL2025 PP3.3.1：P・Ca管理をPTH管理より優先）。他の異常値を悪化させる提案には注記を付け、相反する提案は優先度の高い方を採用しています。</p>
+    <div id="ranked"></div>
+  </div>
+  <div class="card" id="detailCard">
+    <h2>検討事項（領域別の詳細）</h2>
+    <div class="summary" id="counts"></div>
+    <div id="results"></div>
+  </div>
+  <div class="card">
+    <h2>カルテ記載用テキスト</h2>
+    <textarea id="report" readonly></textarea>
+    <div style="margin-top:6px" class="noprint"><button id="btnCopy">コピー</button> <span class="note" id="copyMsg"></span></div>
+  </div>
+  <div class="card note" id="evidence">
+    <h2>根拠・エビデンス（2026年10月に確認）</h2>
+    <ol id="refList"></ol>
+    <h3>海外のエビデンス（国内GL・保険診療と基準が異なるため判定には未反映）</h3>
+    <ul id="intlList"></ul>
+    <p>保険適用は各薬剤の「作用 ▾」に効能・効果の要約を記載しています。算定・査定の扱いは最新の添付文書と留意事項通知で確認してください。</p>
+  </div>
+</div>
+</div>
+
+<nav class="mnav" aria-label="画面の切り替え">
+ <button type="button" data-go="formCol">入力</button>
+ <button type="button" data-go="rankCard" class="primary">優先順位<span class="cnt" id="mnavCnt" hidden></span></button>
+ <button type="button" data-go="detailCard">詳細・カルテ文</button>
+</nav>
+
+<div class="modal" id="ocrModal" hidden>
+ <div class="box" role="dialog" aria-modal="true" aria-labelledby="ocrTitle">
+  <h2 id="ocrTitle">貼り付けで検査値を取込</h2>
+  <p class="note" style="margin-top:0">読み取りはこの端末のブラウザ内で行い、外部には送信されません。読み取り結果は必ず確認・修正してから反映してください。</p>
+  <div id="ocrTextWrap">
+   <p class="note" style="margin:0 0 4px">電子カルテの検査結果画面で結果の範囲を選択してコピー（Ctrl+C）し、下に貼り付け（Ctrl+V）てください。</p>
+   <textarea id="ocrPaste" style="min-height:120px" placeholder="ここに検査結果を貼り付け"></textarea>
+  </div>
+  <div class="ocr-top">
+   <div>
+    <div id="ocrStatus" class="note">貼り付けを待っています</div>
+    <label class="f" style="max-width:220px">取込先
+     <select id="ocrTarget"><option value="l_">今回</option><option value="lp_">前回</option></select></label>
+    <div id="ocrExtra" class="note"></div>
+   </div>
+  </div>
+  <div id="ocrResult"></div>
+  <details style="margin-top:8px"><summary class="note">貼り付けた全文を表示</summary><pre id="ocrRaw" style="white-space:pre-wrap;font-size:11.5px;max-height:200px;overflow:auto"></pre></details>
+  <div class="ocr-actions">
+   <button id="ocrCancel">キャンセル</button>
+   <button id="ocrApply" class="primary" disabled>チェックした項目を反映</button>
+  </div>
+ </div>
+</div>
+
+<script>
+"use strict";
+const FLAGS=[['dm','糖尿病'],['cvd','動脈硬化性疾患・心血管疾患既往'],['hf','心不全'],['malnut','低栄養'],['fx_risk','骨折リスク高（女性・低BMI・骨代謝マーカー上昇など）'],['ptg','副甲状腺腫大（エコー）'],['tx','腎移植の可能性'],['gout','痛風既往'],['malig','活動性悪性腫瘍'],['pdr','増殖糖尿病網膜症/黄斑浮腫'],['thromb','血栓塞栓症既往'],['constip','便秘傾向'],['diarrhea','下痢傾向'],['urine','残腎尿量あり']];
+const LAB_GROUPS=[
+ ['CKD-MBD',[['alb','Alb','g/dL'],['ca','Ca（実測）','mg/dL'],['p','P','mg/dL'],['pth','PTH','pg/mL'],['alp','ALP (IFCC)','U/L'],['mg','Mg','mg/dL']]],
+ ['カリウム',[['k','K','mEq/L']]],
+ ['透析量（spKt/V 自動計算）',[['bun_pre','BUN（透析前）','mg/dL'],['bun_post','BUN（透析後）','mg/dL'],['hd_time','透析時間','時間'],['uf','除水量','L'],['wt_post','透析後体重','kg'],['ktv','spKt/V（自動計算）','']]],
+ ['貧血・炎症',[['hb','Hb','g/dL'],['ferritin','フェリチン','ng/mL'],['fe','血清Fe','µg/dL'],['tibc','TIBC','µg/dL'],['tsat','TSAT（自動計算）','%'],['zn','Zn','µg/dL'],['crp','CRP','mg/dL']]],
+ ['代謝',[['glu','透析前血糖','mg/dL'],['ga','グリコアルブミン','%'],['hba1c','HbA1c','%'],['ldl','LDL-C','mg/dL'],['nonhdl','non-HDL-C','mg/dL'],['ua','UA','mg/dL']]]
+];
+// [id, 一般名, 商品名（代表例）]
+const MEDS=[
+ ['リン吸着薬・P吸収阻害薬',[['caco3','沈降炭酸カルシウム','カルタン'],['lanthanum','炭酸ランタン','ホスレノール'],['sevelamer','セベラマー塩酸塩','レナジェル、フォスブロック'],['bixalomer','ビキサロマー','キックリン'],['fecit','クエン酸第二鉄水和物','リオナ'],['sfo','スクロオキシ水酸化鉄','ピートル'],['tenapanor','テナパノル','フォゼベル']]],
+ ['活性型ビタミンD',[['alfacalcidol','アルファカルシドール（内服）','アルファロール、ワンアルファ'],['calcitriol_po','カルシトリオール（内服）','ロカルトロール'],['vd_iv','静注VDRA：マキサカルシトール／カルシトリオール','オキサロール注、ロカルトロール注']]],
+ ['カルシミメティクス（Ca受容体作動薬）',[['cinacalcet','シナカルセト','レグパラ'],['evocalcet','エボカルセト','オルケディア'],['cm_iv','静注：エテルカルセチド／ウパシカルセト','パーサビブ、ウパシタ']]],
+ ['カリウム・酸塩基・RAS',[['zs','ジルコニウムシクロケイ酸Na','ロケルマ'],['patiromer','パチロマー','ビルタサ'],['ps_ca','ポリスチレンスルホン酸Ca','カリメート、アーガメイト'],['ps_na','ポリスチレンスルホン酸Na','ケイキサレート'],['nahco3','炭酸水素Na','重曹'],['rasi','ACE阻害薬／ARB／ARNI','エナラプリル、オルメテック、アジルバ、エンレスト等'],['mra','MRA','アルダクトンA、セララ、ミネブロ']]],
+ ['貧血',[['oral_iron','クエン酸第一鉄Na（経口鉄剤）','フェロミア'],['iv_iron','静注鉄剤','フェジン、フェインジェクト、モノヴァー'],['esa','ESA（注射）','ネスプ、ミルセラ、エポジン等'],
+   ['dap','ダプロデュスタット（HIF-PH阻害薬）','ダーブロック'],['vad','バダデュスタット（HIF-PH阻害薬）','バフセオ'],['ena','エナロデュスタット（HIF-PH阻害薬）','エナロイ'],['mol','モリデュスタット（HIF-PH阻害薬）','マスーレッド'],['rox','ロキサデュスタット（HIF-PH阻害薬）','エベレンゾ']]],
+ ['尿酸',[['allopurinol','アロプリノール','ザイロリック'],['febuxostat','フェブキソスタット','フェブリク'],['topiroxostat','トピロキソスタット','トピロリック、ウリアデック']]],
+ ['糖尿病',[['dpp4','DPP-4阻害薬','トラゼンタ、テネリア、ジャヌビア等'],['insulin','インスリン',''],['glp1','GLP-1受容体作動薬','トルリシティ、オゼンピック、リベルサス等'],['agi','α-GI','ベイスン、セイブル等'],['glinide','グリニド薬','グルファスト、シュアポスト、スターシス等'],['su','SU薬','アマリール、グリミクロン等'],['metformin','メトホルミン','メトグルコ'],['sglt2','SGLT2阻害薬','フォシーガ、ジャディアンス等'],['tzd','チアゾリジン薬（ピオグリタゾン）','アクトス'],['imeglimin','イメグリミン','ツイミーグ']]],
+ ['脂質',[['statin','スタチン','リピトール、クレストール、リバロ等'],['ezetimibe','エゼチミブ','ゼチーア'],['fibrate','ベザフィブラート／フェノフィブラート','ベザトール、リピディル、トライコア']]],
+ ['その他・要注意薬',[['zinc','酢酸亜鉛','ノベルジン'],['mgo','酸化マグネシウム','マグミット'],['al','アルミニウム含有製剤（スクラルファート等）','アルサルミン等'],['nsaids','NSAIDs','ロキソニン、セレコックス等'],['h2ra','H2受容体拮抗薬','ガスター等'],['ppi','PPI','ネキシウム、タケプロン等'],['gaba','プレガバリン／ミロガバリン','リリカ、タリージェ'],['doac','DOAC','プラザキサ、イグザレルト、エリキュース、リクシアナ'],['clopidogrel','クロピドグレル','プラビックス'],['digoxin','ジゴキシン','ジゴシン'],['acv','アシクロビル／バラシクロビル','ゾビラックス、バルトレックス']]]
+];
+const HIF_IDS=['dap','vad','ena','mol','rox'];
+
+// ---------- 用量の選択肢 ----------
+// 代表的な用量のみ。末尾記号：* 透析患者での最大量 ／ ! 透析患者では過量 ／ # 透析患者で禁忌。施設の採用規格に合わせて編集可
+const DOSES={
+ caco3:['0.5g/日','1.5g/日 分3','2.25g/日 分3','3g/日 分3*'],
+ lanthanum:['750mg/日 分3','1500mg/日 分3','2250mg/日 分3*'],
+ sevelamer:['3g/日 分3','4.5g/日 分3','6g/日 分3','9g/日 分3*'],
+ bixalomer:['1.5g/日 分3','3g/日 分3','4.5g/日 分3','6g/日 分3','7.5g/日 分3*'],
+ fecit:['1500mg/日 分3','3000mg/日 分3','4500mg/日 分3','6000mg/日 分3*'],
+ sfo:['750mg/日 分3','1500mg/日 分3','2250mg/日 分3','3000mg/日 分3*'],
+ tenapanor:['5mg×2/日','10mg×2/日','20mg×2/日','30mg×2/日*'],
+ alfacalcidol:['0.25µg/日','0.5µg/日','0.75µg/日','1µg/日'],
+ calcitriol_po:['0.25µg 隔日','0.25µg/日','0.5µg/日'],
+ vd_iv:['オキサロール 2.5µg 週3回','オキサロール 5µg 週3回','オキサロール 10µg 週3回','ロカルトロール注 0.5µg 週3回','ロカルトロール注 1µg 週3回'],
+ cinacalcet:['25mg/日','50mg/日','75mg/日','100mg/日*'],
+ evocalcet:['1mg/日','2mg/日','3mg/日','4mg/日','6mg/日','8mg/日','12mg/日*'],
+ cm_iv:['パーサビブ 2.5mg 週3回','パーサビブ 5mg 週3回','パーサビブ 7.5mg 週3回','パーサビブ 10mg 週3回','パーサビブ 15mg 週3回*','ウパシタ 25µg 週3回','ウパシタ 50µg 週3回','ウパシタ 100µg 週3回','ウパシタ 150µg 週3回','ウパシタ 200µg 週3回','ウパシタ 250µg 週3回','ウパシタ 300µg 週3回*'],
+ zs:['5g 非透析日','10g 非透析日','15g 非透析日*'],
+ patiromer:['8.4g/日','16.8g/日','25.2g/日*'],
+ ps_ca:['5g/日','10g/日 分2','15g/日 分3','20g/日 分2','30g/日 分3'],
+ ps_na:['15g/日 分3','30g/日 分3'],
+ nahco3:['1g/日 分2','1.5g/日 分3','2g/日 分2','3g/日 分3'],
+ rasi:['アジルサルタン 20mg','オルメサルタン 20mg','テルミサルタン 40mg','エナラプリル 5mg','サクビトリルバルサルタン 100mg×2'],
+ mra:['スピロノラクトン 25mg','スピロノラクトン 50mg','エプレレノン 25mg#','エサキセレノン 1.25mg#'],
+ oral_iron:['50mg/日','100mg/日 分2'],
+ iv_iron:['フェジン 40mg 月1回','フェジン 40mg 2週1回','フェジン 40mg 週1回'],
+ esa:['ネスプ 10µg 週1','ネスプ 20µg 週1','ネスプ 30µg 週1','ネスプ 40µg 週1','ネスプ 60µg 2週1','ミルセラ 25µg 月1','ミルセラ 50µg 月1','ミルセラ 75µg 月1','ミルセラ 100µg 月1','ミルセラ 150µg 月1','エポジン 1500IU 週3','エポジン 3000IU 週3'],
+ dap:['2mg/日','4mg/日','6mg/日','8mg/日','12mg/日','18mg/日','24mg/日*'],
+ vad:['150mg/日','300mg/日','450mg/日','600mg/日*'],
+ ena:['2mg/日','4mg/日','6mg/日','8mg/日*'],
+ mol:['25mg/日','50mg/日','75mg/日','100mg/日','150mg/日','200mg/日*'],
+ rox:['20mg 週3回','40mg 週3回','50mg 週3回','70mg 週3回','100mg 週3回','120mg 週3回','150mg 週3回','200mg 週3回'],
+ allopurinol:['50mg/日','100mg 週3回 HD後*','100mg/日!','200mg/日!'],
+ febuxostat:['10mg/日','20mg/日','40mg/日','60mg/日*'],
+ topiroxostat:['20mg×2/日','40mg×2/日','60mg×2/日','80mg×2/日*'],
+ dpp4:['リナグリプチン 5mg','テネリグリプチン 20mg','テネリグリプチン 40mg','シタグリプチン 12.5mg','シタグリプチン 25mg*','シタグリプチン 50mg!','シタグリプチン 100mg!','アログリプチン 6.25mg','アログリプチン 12.5mg!','アログリプチン 25mg!','ビルダグリプチン 50mg*','ビルダグリプチン 100mg!','トレラグリプチン 25mg 週1*','トレラグリプチン 50mg 週1!','トレラグリプチン 100mg 週1!','オマリグリプチン 12.5mg 週1*','オマリグリプチン 25mg 週1!'],
+ glp1:['デュラグルチド 0.75mg 週1','セマグルチド注 0.25mg 週1','セマグルチド注 0.5mg 週1','セマグルチド注 1mg 週1','経口セマグルチド 3mg','経口セマグルチド 7mg','経口セマグルチド 14mg'],
+ agi:['ボグリボース 0.2mg×3','ボグリボース 0.3mg×3','ミグリトール 50mg×3'],
+ glinide:['ミチグリニド 5mg×3','ミチグリニド 10mg×3','レパグリニド 0.25mg×3','レパグリニド 0.5mg×3','ナテグリニド 90mg×3#'],
+ statin:['アトルバスタチン 5mg','アトルバスタチン 10mg','アトルバスタチン 20mg','ロスバスタチン 2.5mg','ロスバスタチン 5mg*','ロスバスタチン 10mg!','ピタバスタチン 1mg','ピタバスタチン 2mg*','ピタバスタチン 4mg!'],
+ ezetimibe:['10mg/日'],
+ zinc:['25mg/日','50mg/日','75mg/日','100mg/日'],
+ mgo:['330mg/日','660mg/日','990mg/日','1320mg/日'],
+ nsaids:['頓用','定期内服'],
+ h2ra:['ファモチジン 10mg/日*','ファモチジン 20mg 週3回 HD後*','ファモチジン 20mg/日!','ファモチジン 40mg/日!'],
+ ppi:['エソメプラゾール 10mg','エソメプラゾール 20mg','ランソプラゾール 15mg','ランソプラゾール 30mg'],
+ gaba:['プレガバリン 25mg/日','プレガバリン 50mg/日','プレガバリン 75mg/日*','プレガバリン 150mg/日!','プレガバリン 300mg/日!','ミロガバリン 2.5mg/日','ミロガバリン 5mg/日','ミロガバリン 7.5mg/日*','ミロガバリン 10mg/日!','ミロガバリン 20mg/日!'],
+ clopidogrel:['75mg/日','50mg/日'],
+ digoxin:['0.125mg 週3回','0.125mg 隔日*','0.125mg/日!','0.25mg/日!'],
+ acv:['アシクロビル 帯状疱疹 800mg/日 HD後*','アシクロビル 単純疱疹 200mg×1〜2/日','アシクロビル 800mg×5/日!','バラシクロビル 帯状疱疹 500mg 週3回 HD後*','バラシクロビル 500mg/日!','バラシクロビル 1000mg×3/日!'],
+};
+const DOSE_OTHER='__other';
+const doseOpts=id=>DOSES[id]||['内服中'];
+const doseLabel=v=>v.replace(/\*$/,'（最大）').replace(/!$/,'（透析で過量）').replace(/#$/,'（透析で禁忌）');
+// 透析患者での推奨用量（JSNP：日本腎臓病薬物療法学会 投与量一覧 38版、L：添付文書）
+const HDNOTE={
+ dpp4:'透析患者：シタグリプチン12.5mg/日（最大25mg）、アログリプチン6.25mg/日、トレラグリプチン25mg/週、オマリグリプチン12.5mg/週（JSNP）。ビルダグリプチンは50mg/日に減量（L）。リナグリプチン・テネリグリプチンは調節不要',
+ allopurinol:'透析患者：100mg を週3回 毎HD後（JSNP）。ただしこの用量で尿酸値を十分に管理できないことがある。オキシプリノール蓄積による過敏症・骨髄抑制に注意（フェブキソスタットへの変更も選択肢）',
+ h2ra:'透析患者：ファモチジン10mg/日、または20mgを週3回HD後（JSNP）。過量で意識障害・血球減少',
+ gaba:'透析患者：プレガバリンは1日25〜75mg（分1）＋HD後に25〜150mgを補充（L）、学会は1日25mg・HD日はHD後投与を推奨（JSNP・EO）。ミロガバリンは2.5mg/日から開始し、5〜7.5mg/日（分1）（L・JSNP）。めまい・傾眠・意識障害に注意',
+ digoxin:'透析患者：維持量0.125mgを週3〜4回（JSNP・EO）。心拍数と血中濃度で調整。低K・高Ca・低Mgで中毒リスク上昇',
+ acv:'透析患者：アシクロビルは帯状疱疹で体重55kg以上800mg/日（HD日はHD後）、単純疱疹200mg×1〜2/日。バラシクロビルは帯状疱疹で（体重60kg以上・非高齢）500mgを週3回HD後、それ以外は他剤を優先（JSNP・EO）。過量で精神神経症状（アシクロビル脳症）',
+ statin:'重度腎障害：ロスバスタチンは2.5mgから開始・最大5mg/日、ピタバスタチンは1mgから開始・最大2mg/日（L）。アトルバスタチンは調節不要',
+ mra:'エプレレノン・エサキセレノンは重度腎機能障害で禁忌、スピロノラクトンは無尿で禁忌（L）',
+ glinide:'ナテグリニドは透析患者で禁忌（L・JSNP）。ミチグリニド・レパグリニドは低用量から慎重に',
+};
+const doseFlag=(s,id)=>{const d=s.meds[id]?.dose; if(!d) return ''; const o=doseOpts(id).find(o=>doseLabel(o)===d); return o?(/[*!#]$/.test(o)?o.slice(-1):'ok'):'free'};
+const medName=(g,b)=>b?`${g}（${b}）`:g;
+
+// 薬剤の作用: fx=[検査項目, 方向], use=服用・投与, caution=注意点
+const EFFECTS={
+ caco3:{fx:[['P','↓'],['Ca','↑'],['PTH','↓']],use:'食直後（食事中のPを吸着）。食間投与ではCa補充として働く',caution:'Ca負荷による高Ca血症・血管石灰化。便秘。PPI併用で効果減弱'},
+ lanthanum:{fx:[['P','↓']],use:'食直後。チュアブル錠は噛み砕く（顆粒・OD錠あり）',caution:'嘔気・便秘。Ca負荷なし'},
+ sevelamer:{fx:[['P','↓'],['LDL','↓']],use:'食直前',caution:'便秘・腹部膨満・腸閉塞。代謝性アシドーシス助長。錠数が多くなりやすい'},
+ bixalomer:{fx:[['P','↓']],use:'食直前',caution:'便秘・腹部膨満・腸閉塞。Ca負荷なし'},
+ fecit:{fx:[['P','↓'],['フェリチン','↑'],['TSAT','↑'],['Hb','↑']],use:'食直後',caution:'下痢・黒色便。鉄が吸収されるため鉄過剰（フェリチン≥300）に注意'},
+ sfo:{fx:[['P','↓']],use:'食直前（チュアブル錠は噛み砕く）',caution:'下痢・黒色便。鉄はほとんど吸収されない。1錠あたりの吸着能が高く錠数を減らせる'},
+ tenapanor:{fx:[['P','↓']],use:'1日2回 朝・夕食直前',caution:'腸管からのP吸収自体を阻害（吸着薬とは機序が異なる）。下痢が多い'},
+ alfacalcidol:{fx:[['PTH','↓'],['Ca','↑'],['P','↑']],use:'1日1回',caution:'高Ca・高P血症。肝で活性化されるプロドラッグ'},
+ calcitriol_po:{fx:[['PTH','↓'],['Ca','↑'],['P','↑']],use:'1日1回',caution:'高Ca・高P血症'},
+ vd_iv:{fx:[['PTH','↓'],['Ca','↑'],['P','↑']],use:'透析終了時に静注（週1〜3回）',caution:'高Ca・高P血症。PTH抑制作用は内服より強い'},
+ cinacalcet:{fx:[['PTH','↓'],['Ca','↓'],['P','↓']],use:'1日1回（夕食後が多い）',caution:'嘔気・嘔吐など消化器症状。低Ca血症。CYP2D6阻害など相互作用が多い'},
+ evocalcet:{fx:[['PTH','↓'],['Ca','↓'],['P','↓']],use:'1日1回',caution:'低Ca血症。シナカルセトより消化器症状・相互作用が少ない'},
+ cm_iv:{fx:[['PTH','↓'],['Ca','↓'],['P','↓']],use:'透析終了時に回路から静注（週3回）',caution:'低Ca血症。アドヒアランスに左右されない'},
+ zs:{fx:[['K','↓']],use:'血液透析患者では非透析日に1日1回（5gから、最大15g）',caution:'Na負荷による浮腫・体重増加。効果発現が速い。低K血症'},
+ ps_ca:{fx:[['K','↓']],use:'1日2〜3回に分けて',caution:'便秘・腸管穿孔。Ca負荷はわずか'},
+ ps_na:{fx:[['K','↓'],['Na','↑']],use:'1日2〜3回に分けて',caution:'Na負荷による体液過剰・高血圧。便秘'},
+ nahco3:{fx:[['K','↓']],use:'1日2〜3回',caution:'代謝性アシドーシスの補正。Na負荷（1gでNa約274mg）による体重増加・血圧上昇'},
+ rasi:{fx:[['K','↑'],['血圧','↓']],use:'',caution:'高K血症。心不全・心保護目的の適応と比較して用量を判断'},
+ mra:{fx:[['K','↑']],use:'',caution:'高K血症。スピロノラクトンは女性化乳房'},
+ oral_iron:{fx:[['フェリチン','↑'],['TSAT','↑'],['Hb','↑']],use:'1日1〜2回 食後',caution:'嘔気・便秘・黒色便。HIF-PH阻害薬との服用間隔に注意'},
+ iv_iron:{fx:[['フェリチン','↑'],['TSAT','↑'],['Hb','↑']],use:'透析時に静注',caution:'鉄過剰（フェリチン≥300で中止）。過敏症。カルボキシマルトース第二鉄では低P血症'},
+ esa:{fx:[['Hb','↑']],use:'透析時に静注（製剤により週1回〜月1回）',caution:'血圧上昇・血栓塞栓症。Hb>12で減量'},
+ dap:{fx:[['Hb','↑']],use:'1日1回（透析：4mgから、最高24mg）',caution:'CYP2C8阻害薬（クロピドグレル等）で血中濃度上昇。多価陽イオン含有薬との相互作用はない。血栓塞栓症・悪性腫瘍・網膜病変に注意'},
+ vad:{fx:[['Hb','↑']],use:'1日1回（300mgから、最高600mg）',caution:'多価陽イオン含有経口薬（鉄剤・Ca/La/Fe/Mg製剤）で吸収低下→服用時間をずらす。プロベネシド、スタチン等と相互作用'},
+ ena:{fx:[['Hb','↑']],use:'1日1回 食前または就寝前（HD：4mgから、最高8mg）',caution:'多価陽イオン含有経口薬・リン吸着薬で吸収低下→服用時間をずらす'},
+ mol:{fx:[['Hb','↑']],use:'1日1回 食後（透析：75mgから、最高200mg）',caution:'多価陽イオン含有経口薬で吸収低下→服用時間をずらす'},
+ rox:{fx:[['Hb','↑']],use:'週3回（ESA未治療50mg／切替70・100mg、最高3.0mg/kg）。HD日に施設内服用も可',caution:'中枢性甲状腺機能低下症（重大な副作用）→TSH・FT4測定。多価陽イオン・リン結合性ポリマー（セベラマー等）でAUC低下'},
+ patiromer:{fx:[['K','↓'],['Mg','↓']],use:'1日1回 水に懸濁（8.4gから、最高25.2g）',caution:'主に結腸で作用し効果発現は緩徐。低Mg血症。便秘。他の経口薬と服用時間をずらす（添付文書参照）。Na負荷なし'},
+ tzd:{fx:[['血糖','↓']],use:'',caution:'体液貯留・心不全。透析患者では禁忌または推奨されない'},
+ imeglimin:{fx:[['血糖','↓']],use:'',caution:'腎排泄。eGFR 45未満では投与は推奨されない（添付文書）'},
+ clopidogrel:{fx:[['血小板凝集','↓']],use:'',caution:'CYP2C8阻害作用：ダプロデュスタットの血中濃度を上昇させる'},
+ allopurinol:{fx:[['UA','↓']],use:'透析後に投与（低用量）',caution:'活性代謝物が蓄積：過敏症（SJS/TEN）・骨髄抑制'},
+ febuxostat:{fx:[['UA','↓']],use:'1日1回（10mgから）',caution:'腎機能による調節がほぼ不要。心血管疾患合併例では注意（CARES試験）'},
+ topiroxostat:{fx:[['UA','↓']],use:'1日2回',caution:'肝機能障害'},
+ dpp4:{fx:[['血糖','↓']],use:'1日1回が多い',caution:'単独では低血糖が少ない。リナグリプチン・テネリグリプチン以外は減量が必要'},
+ insulin:{fx:[['血糖','↓'],['K','↓']],use:'',caution:'低血糖（透析日は血糖が下がりやすい）'},
+ glp1:{fx:[['血糖','↓'],['体重','↓']],use:'週1回注射／経口',caution:'嘔気・食欲低下。低栄養の透析患者では注意'},
+ agi:{fx:[['食後血糖','↓']],use:'食直前',caution:'腹部膨満・放屁。開腹術後は腸閉塞に注意'},
+ glinide:{fx:[['食後血糖','↓']],use:'食直前',caution:'低血糖。ナテグリニドは透析患者禁忌'},
+ su:{fx:[['血糖','↓']],use:'',caution:'【透析患者禁忌】遷延性低血糖'},
+ metformin:{fx:[['血糖','↓']],use:'',caution:'【透析患者禁忌】乳酸アシドーシス'},
+ sglt2:{fx:[['血糖','→']],use:'',caution:'尿糖排泄が機序のため無尿の透析患者では効果なし'},
+ statin:{fx:[['LDL','↓']],use:'1日1回',caution:'筋障害・横紋筋融解症'},
+ ezetimibe:{fx:[['LDL','↓']],use:'1日1回',caution:'腸管からのコレステロール吸収を阻害'},
+ fibrate:{fx:[['TG','↓']],use:'',caution:'【透析患者禁忌】横紋筋融解症'},
+ zinc:{fx:[['Zn','↑'],['Cu','↓']],use:'1日1〜2回（25〜50mg/回）',caution:'嘔気。長期で銅欠乏（貧血・白血球減少）→ Cu測定'},
+ mgo:{fx:[['Mg','↑'],['排便','↑']],use:'',caution:'高Mg血症（徐脈・筋力低下・意識障害）。HIF-PH阻害薬との同時服用を避ける'},
+ al:{fx:[['P','↓']],use:'',caution:'【透析患者禁忌】アルミニウム蓄積による脳症・骨症'},
+ nsaids:{fx:[['K','↑'],['残腎機能','↓']],use:'',caution:'消化管出血・残腎機能低下'},
+ h2ra:{fx:[['胃酸','↓']],use:'',caution:'腎排泄で蓄積 → 意識障害・血球減少。減量が必要'},
+ ppi:{fx:[['胃酸','↓'],['Mg','↓']],use:'',caution:'低Mg血症。炭酸Caのリン吸着効果を弱める可能性'},
+ gaba:{fx:[['神経障害性疼痛','↓']],use:'低用量（透析後に補充）',caution:'蓄積によるめまい・傾眠・意識障害'},
+ doac:{fx:[['凝固','↓']],use:'',caution:'【国内では透析患者禁忌】出血。ワルファリン等を検討'},
+ digoxin:{fx:[['心拍数','↓']],use:'低用量・血中濃度モニタリング',caution:'低K・高Ca・低Mgで中毒（不整脈・嘔気・視覚異常）'},
+ acv:{fx:[],use:'大幅減量（透析後投与）',caution:'蓄積による精神神経症状（アシクロビル脳症）'}
+};
+// 効能・効果（要約）。保険請求上は最新の添付文書・留意事項通知を確認すること
+const INS={
+ caco3:'CKD（保存期・透析中）における高リン血症',lanthanum:'慢性腎臓病患者における高リン血症の改善',sevelamer:'透析中の慢性腎臓病患者における高リン血症の改善（保存期は適応外）',
+ bixalomer:'慢性腎臓病患者における高リン血症の改善',fecit:'慢性腎臓病患者における高リン血症の改善（別用量で鉄欠乏性貧血）',sfo:'透析中の慢性腎臓病患者における高リン血症の改善',
+ tenapanor:'透析中の慢性腎臓病患者における高リン血症の改善（2024年2月発売）',
+ cinacalcet:'維持透析下の二次性副甲状腺機能亢進症 等',evocalcet:'維持透析下の二次性副甲状腺機能亢進症 等',cm_iv:'血液透析下の二次性副甲状腺機能亢進症。カルシミメティクス同士の併用は不可',
+ zs:'高カリウム血症（血液透析患者は非透析日投与の用法）',patiromer:'高カリウム血症（2025年3月発売）',ps_ca:'急性・慢性腎不全に伴う高カリウム血症',ps_na:'急性・慢性腎不全による高カリウム血症',
+ oral_iron:'鉄欠乏性貧血',iv_iron:'鉄欠乏性貧血（経口鉄剤が困難・不適の場合など、製剤ごとに要件あり）',
+ esa:'腎性貧血（HIF-PH阻害薬との併用不可）',dap:'腎性貧血（ESAとの併用不可）',vad:'腎性貧血（ESAとの併用不可）',ena:'腎性貧血（ESAとの併用不可）',mol:'腎性貧血（ESAとの併用不可）',rox:'腎性貧血（ESAとの併用不可）',
+ zinc:'低亜鉛血症',sglt2:'CKDの適応は「末期腎不全又は透析施行中の患者を除く」',
+};
+const EV={
+ sevelamer:'NMA（Nishimoto）で総死亡の観点から好ましい位置づけ。Ca含有薬より総死亡・冠動脈石灰化を抑制（Palmer NMA）',
+ sfo:'NMA（Nishimoto）で総死亡の観点から好ましい位置づけ。Ca含有薬より冠動脈石灰化の進展が緩徐',
+ tenapanor:'NMA（Nishimoto）で総死亡の観点から好ましい位置づけ（日本人データは限定的）',
+ lanthanum:'Ca含有薬より冠動脈石灰化の進展が緩徐（NMA）',
+ caco3:'CKD-MBD GL2025：補正Ca≥9.5では減量・中止を考慮',
+ fecit:'P低下効果のランキング上位（鉄含有P低下薬）。鉄欠乏例で鉄動態の改善',
+ cinacalcet:'CKD-MBD GL2025：高P・高Caを伴う二次性HPTで投与を提案（低Ca時を除く）',evocalcet:'同上',cm_iv:'同上',
+ zs:'DIALIZE-Outcomes（2025）：K管理は改善したが不整脈関連CVイベントは減らさず',
+ mra:'ACHIEVE（2025）・ALCHEMIST：透析患者でCV死・心不全入院を減らさず、重症高Kが増加',
+ sglt2:'透析患者を含むRCT（RENAL LIFECYCLE）は進行中。現時点で保険適用外',
+ dpp4:'透析患者の糖尿病治療ガイド2025：内服の第一選択として考慮',
+ glp1:'透析患者の糖尿病治療ガイド2025：使用可能（BMI高値・体重増加が多い例など）',
+};
+function fxHtml(id){
+ const e=EFFECTS[id]; if(!e) return '';
+ const chips=e.fx.map(([k,dir])=>`<span class="fx ${dir==='↓'?'dn':dir==='↑'?'up':''}">${k} ${dir}</span>`).join('');
+ return `${chips?`<div class="fxs">${chips}</div>`:''}${e.use?`<div><b>服用：</b>${e.use}</div>`:''}${e.caution?`<div><b>注意：</b>${e.caution}</div>`:''}${INS[id]?`<div><b>効能（保険）：</b>${INS[id]}</div>`:''}${EV[id]?`<div><b>エビデンス：</b>${EV[id]}</div>`:''}`;
+}
+
+// 検討事項の文中の薬剤名に商品名を付記（各項目で初出のみ）
+const BRAND=[
+ ['炭酸カルシウム','カルタン','caco3'],['炭酸Ca','カルタン','caco3'],['炭酸ランタン','ホスレノール'],['セベラマー塩酸塩','レナジェル、フォスブロック','sev'],['セベラマー','レナジェル、フォスブロック','sev'],
+ ['ビキサロマー','キックリン'],['クエン酸第二鉄','リオナ'],['スクロオキシ水酸化鉄','ピートル'],['テナパノル','フォゼベル'],
+ ['活性型ビタミンD製剤','アルファロール、ワンアルファ、ロカルトロール、オキサロール注等','vd'],['VDRA','活性型ビタミンD製剤','vd'],
+ ['Ca受容体作動薬','レグパラ、オルケディア、パーサビブ注、ウパシタ注','cm'],['エボカルセト','オルケディア'],
+ ['ジルコニウムシクロケイ酸Na','ロケルマ','zs'],['ポリスチレンスルホン酸Ca','カリメート、アーガメイト','psca'],['PS-Ca','カリメート、アーガメイト','psca'],['ポリスチレンスルホン酸Na','ケイキサレート'],
+ ['K吸着薬','ロケルマ、カリメート、アーガメイト等'],['RAS阻害薬','ACE阻害薬、ARB、エンレスト'],['MRA','アルダクトンA、セララ、ミネブロ'],['炭酸水素Na','重曹'],
+ ['クエン酸第一鉄Na','フェロミア'],['静注鉄','フェジン、フェインジェクト、モノヴァー'],['ESA','ネスプ、ミルセラ、エポジン等',null,/^(低反応|使用)/],
+ ['HIF-PH阻害薬','ダーブロック、バフセオ、エナロイ、マスーレッド、エベレンゾ'],['バダデュスタット','バフセオ'],['ロキサデュスタット','エベレンゾ'],
+ ['酢酸亜鉛','ノベルジン'],['酸化マグネシウム','マグミット'],['ルビプロストン','アミティーザ'],['リナクロチド','リンゼス'],['エロビキシバット','グーフィス'],['ポリエチレングリコール','モビコール'],
+ ['メトホルミン','メトグルコ'],['SU薬','アマリール、グリミクロン等'],['SGLT2阻害薬','フォシーガ、ジャディアンス等'],['ナテグリニド','スターシス、ファスティック'],['ミチグリニド','グルファスト'],['レパグリニド','シュアポスト'],
+ ['DPP-4阻害薬','トラゼンタ、テネリア、ジャヌビア等'],['リナグリプチン','トラゼンタ'],['テネリグリプチン','テネリア'],['シタグリプチン','ジャヌビア、グラクティブ'],['アログリプチン','ネシーナ'],
+ ['GLP-1受容体作動薬','トルリシティ、オゼンピック等'],['α-GI','ベイスン、セイブル等'],
+ ['シンバスタチン','リポバス'],['アトルバスタチン','リピトール'],['ロスバスタチン','クレストール'],['ピタバスタチン','リバロ'],['スタチン','リピトール、クレストール、リバロ等'],['エゼチミブ','ゼチーア'],['ベザフィブラート','ベザトール'],['フェノフィブラート','リピディル、トライコア'],['ペマフィブラート','パルモディア'],
+ ['アロプリノール','ザイロリック'],['フェブキソスタット','フェブリク'],['トピロキソスタット','トピロリック、ウリアデック'],
+ ['DOAC','プラザキサ、イグザレルト、エリキュース、リクシアナ'],['ワルファリン','ワーファリン'],['アシクロビル','ゾビラックス',null,/^脳症/],['バラシクロビル','バルトレックス'],
+ ['プレガバリン','リリカ'],['ミロガバリン','タリージェ'],['H2受容体拮抗薬','ガスター等'],['PPI','ネキシウム、タケプロン等'],['NSAIDs','ロキソニン、セレコックス等'],['アセトアミノフェン','カロナール'],
+ ['ジゴキシン','ジゴシン'],['スクラルファート','アルサルミン'],['パチロマー','ビルタサ'],['ダプロデュスタット','ダーブロック'],['エナロデュスタット','エナロイ'],['モリデュスタット','マスーレッド'],
+ ['カルシミメティクス','レグパラ、オルケディア、パーサビブ注、ウパシタ注','cm'],['ピオグリタゾン','アクトス'],['イメグリミン','ツイミーグ'],['クロピドグレル','プラビックス'],['チアゾリジン薬','アクトス'],['沈降炭酸Ca','カルタン','caco3']
+];
+const BRAND_RE=new RegExp([...BRAND].sort((a,b)=>b[0].length-a[0].length).map(x=>x[0].replace(/[.*+?^${}()|[\]\\-]/g,'\\$&')).join('|'),'g');
+const BRAND_MAP=Object.fromEntries(BRAND.map(x=>[x[0],x]));
+function withBrand(str,seen){
+ return str.replace(BRAND_RE,(m,off,all)=>{
+  const [,b,grp,skip]=BRAND_MAP[m]; const key=grp||m; const rest=all.slice(off+m.length);
+  if(seen.has(key)||rest.startsWith('（')||(skip&&skip.test(rest))) return m;
+  seen.add(key); return `${m}（${b}）`;
+ });
+}
+// 上限は「未満」で判定（P・補正Ca・PTH：CKD-MBD GL2025）
+const T_DEF={P_lo:3.5,P_hi:5.5,P_hi_dm:5.0,Ca_lo:8.4,Ca_hi:9.5,PTH_lo:60,PTH_hi:240,PTH_hi_fx:240,ALP_hi:113,Mg_lo:1.8,Mg_hi:3.0,
+ K_lo:3.5,K_hi:5.5,K_alert:6.0,KtV_lo:1.2,
+ Hb_lo:10.0,Hb_hi:12.0,Hb_stop:13.0,Hb_rise:2.0,Fer_lo50:50,Fer_lo:100,Fer_hi:300,TSAT_lo:20,Zn_lo:60,Zn_border:80,CRP_hi:0.3,Alb_lo:3.5,
+ Glu_hi:200,GA_hi:20.0,GA_hi_cvd:24.0,LDL_hi:120,LDL_hi_cvd:100,nonHDL_hi:150,nonHDL_hi_cvd:130,UA_hi:8.0};
+const T_LABEL={P_lo:'P 下限',P_hi:'P 上限（未満）',P_hi_dm:'P 上限：糖尿病/動脈硬化性疾患',Ca_lo:'補正Ca 下限',Ca_hi:'補正Ca 上限（未満）',PTH_lo:'iPTH 下限（VDRA単独時）',PTH_hi:'iPTH 上限（未満）',PTH_hi_fx:'iPTH 上限：骨折高リスク（施設設定）',ALP_hi:'ALP 上限',Mg_lo:'Mg 下限',Mg_hi:'Mg 上限',
+ K_lo:'K 下限',K_hi:'K 上限',K_alert:'K 警告',KtV_lo:'spKt/V 最低',
+ Hb_lo:'Hb 下限',Hb_hi:'Hb 上限',Hb_stop:'Hb 休薬目安',Hb_rise:'Hb 急上昇幅（4週以内）',Fer_lo50:'フェリチン 単独で鉄補充',Fer_lo:'フェリチン 下限',Fer_hi:'フェリチン 鉄剤中止',TSAT_lo:'TSAT 下限',Zn_lo:'Zn 欠乏',Zn_border:'Zn 潜在欠乏',CRP_hi:'CRP 上限',Alb_lo:'Alb 下限',
+ Glu_hi:'透析前血糖 上限',GA_hi:'GA 上限',GA_hi_cvd:'GA 上限(CVD/低栄養)',LDL_hi:'LDL 上限(一次)',LDL_hi_cvd:'LDL 上限(二次)',nonHDL_hi:'non-HDL 上限(一次)',nonHDL_hi_cvd:'non-HDL 上限(二次)',UA_hi:'UA 上限'};
+const T_KEY='hdreview_T_v2';
+// ---------- references ----------
+const REFS={
+ MBD25:{s:'CKD-MBD GL2025',t:'日本透析医学会「慢性腎臓病に伴う骨・ミネラル代謝異常の診療ガイドライン（2025年改訂版）」透析会誌 59(4), 2026',u:'https://www.jsdt.or.jp/info/4695.html'},
+ NMA:{s:'NMA',t:'P低下薬のネットワークメタ解析（Palmer 2016、Nishimoto）— CKD-MBD GL2025 Statement 3.1.5／PP3.6で引用',u:'https://www.jsdt.or.jp/info/4695.html'},
+ ANE25:{s:'貧血GL2025',t:'日本透析医学会「慢性腎臓病患者における腎性貧血治療のガイドライン」2025年版（※原本は未確認。腎と透析 99(3) 特集などの二次情報による）',u:'https://webview.isho.jp/journal/detail/abs/10.24479/kd.0000002034'},
+ HIFJSN:{s:'JSN HIF-PH',t:'日本腎臓学会「HIF-PH阻害薬適正使用に関するrecommendation」2020年9月29日版',u:'https://jsn.or.jp/data/HIF-PH_recommendation.pdf'},
+ DM25:{s:'糖尿病ガイド2025',t:'日本透析医学会「透析患者の糖尿病治療ガイド2025」（書籍。要点は二次情報による）',u:'https://www.dm-memo.com/column-detail/%E9%80%8F%E6%9E%90%E6%82%A3%E8%80%85%E3%81%AE%E7%B3%96%E5%B0%BF%E7%97%85%E6%B2%BB%E7%99%82%E3%82%AC%E3%82%A4%E3%83%892025-%E6%94%B9%E8%A8%82'},
+ DIALIZE:{s:'DIALIZE-Outcomes',t:'DIALIZE-Outcomes（Kidney Int 2025）：血液透析患者でSZCはK管理を改善したが、突然死・脳卒中・不整脈入院は減らさず（イベント少数・中止多数で早期終了）',u:'https://www.kidney-international.org/article/S0085-2538(25)00509-5/fulltext'},
+ ACHIEVE:{s:'ACHIEVE',t:'ACHIEVE（Lancet 2025）・ALCHEMIST：維持透析患者のスピロノラクトンはCV死・心不全入院を減らさず、重症高Kが増加',u:'https://www.sciencedirect.com/science/article/abs/pii/S0140673625011985'},
+ PATI:{s:'ビルタサ',t:'パチロマー（ビルタサ懸濁用散）国内承認 2024年9月・発売 2025年3月',u:'https://www.yakuji.co.jp/?p=116655'},
+ TENA:{s:'フォゼベル',t:'テナパノル（フォゼベル）発売 2024年2月：透析中のCKD患者における高リン血症の改善',u:'https://www.yakuji.co.jp/?p=108545'},
+ CKDG24:{s:'CKD診療ガイド2024',t:'日本腎臓学会「CKD診療ガイド2024」第9章 腎性貧血',u:'https://jsn.or.jp/data/gl2024_ckd_ch09.pdf'},
+ LIFE:{s:'RENAL LIFECYCLE',t:'RENAL LIFECYCLE（透析患者を含むダパグリフロジンのRCT、進行中）',u:'https://clinicaltrials.gov/study/NCT05374291'},
+ JSNP:{s:'JSNP投与量一覧',t:'日本腎臓病薬物療法学会「腎機能低下時に最も注意の必要な薬剤投与量一覧」2025年改訂38版',u:'https://jsnp.org/files/dosage_recommendations_38.pdf'},
+ LABEL:{s:'添付文書',t:'各製品の添付文書（PMDA 医療用医薬品情報検索）',u:'https://www.pmda.go.jp/PmdaSearch/iyakuSearch/'}
+};
+// 海外のエビデンス（日本の保険診療・国内GLと基準が異なるため判定には反映しない）
+const REFS_INTL=[
+ ['PIVOTAL（NEJM 2019）：血液透析患者で積極的な静注鉄（フェリチン700未満・TSAT40%未満まで）は、必要時のみの低用量投与よりイベントを減らした。国内GLの鉄剤中止基準（フェリチン≥300）とは異なる','https://www.nejm.org/doi/full/10.1056/NEJMoa1810742'],
+ ['KDIGO 2025 貧血ガイドライン草案：血液透析患者ではフェリチン≤500かつTSAT≤30%でも鉄補充を提案（国内基準より積極的）',''],
+];
+const $=id=>document.getElementById(id);
+const num=x=>{if(x===undefined||x===null||String(x).trim()==='')return null;const n=parseFloat(x);return isNaN(n)?null:n};
+const r1=x=>x==null?'':(Math.round(x*10)/10).toString();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- build form ----------
+$('flags').innerHTML=FLAGS.map(([id,n])=>`<label><input type="checkbox" id="f_${id}">${n}</label>`).join('');
+$('labTable').querySelector('tbody').innerHTML=LAB_GROUPS.map(([g,labs])=>
+ `<tr class="g"><td colspan="4">${g}</td></tr>`+labs.map(([id,n,u])=>
+ `<tr><td>${n}</td><td class="n"><input type="number" step="any" id="l_${id}"></td><td class="n"><input type="number" step="any" id="lp_${id}"></td><td class="u">${u}</td></tr>`).join('')).join('');
+$('medList').innerHTML=MEDS.map(([g,items])=>`<div class="medgrp"><div class="t">${g}</div>`+items.map(([id,n,b])=>
+ `<div class="med"><label><input type="checkbox" id="m_${id}"><span>${n}${b?`<span class="bn">${b}</span>`:''}</span></label>`+
+ `<button type="button" class="fxbtn" data-fx="${id}" aria-expanded="false">作用 ▾</button>`+
+ `<select id="mds_${id}" disabled><option value="">用量を選択</option>${doseOpts(id).map(o=>`<option value="${o}">${doseLabel(o)}</option>`).join('')}<option value="${DOSE_OTHER}">その他（自由入力）</option></select>`+
+ `<input type="text" id="md_${id}" class="doseother" placeholder="用量を入力" hidden><div class="fxbox" id="fx_${id}" hidden>${fxHtml(id)}</div></div>`).join('')+'</div>').join('');
+$('medList').addEventListener('click',e=>{
+ const b=e.target.closest('.fxbtn'); if(!b) return;
+ const box=$('fx_'+b.dataset.fx), open=box.hidden; box.hidden=!open;
+ b.setAttribute('aria-expanded',open); b.textContent=open?'作用 ▴':'作用 ▾';
+});
+$('refList').innerHTML=Object.entries(REFS).map(([k,r])=>`<li id="ref-${k}"><b>${esc(r.s)}</b>：${esc(r.t)} <a href="${r.u}" target="_blank" rel="noopener">リンク</a></li>`).join('');
+$('intlList').innerHTML=REFS_INTL.map(([t,u])=>`<li>${esc(t)}${u?` <a href="${u}" target="_blank" rel="noopener">リンク</a>`:''}</li>`).join('');
+$('btnFxAll').onclick=()=>{
+ const boxes=[...document.querySelectorAll('.fxbox')], open=boxes.some(x=>x.hidden);
+ boxes.forEach(x=>x.hidden=!open);
+ document.querySelectorAll('.fxbtn[data-fx]').forEach(b=>{b.setAttribute('aria-expanded',open);b.textContent=open?'作用 ▴':'作用 ▾'});
+ $('btnFxAll').textContent=open?'作用をすべて閉じる':'作用をすべて表示';
+};
+
+let T={...T_DEF};
+try{const s=localStorage.getItem(T_KEY);if(s)T={...T_DEF,...JSON.parse(s)}}catch(e){}
+function buildT(){
+ $('tgrid').innerHTML=Object.keys(T_DEF).map(k=>`<label class="f">${T_LABEL[k]}<input type="number" step="any" id="t_${k}" value="${T[k]}"></label>`).join('');
+}
+buildT();
+
+// ---------- state ----------
+function getState(){
+ const s={patient:{},flags:{},labs:{},meds:{}};
+ ['label','date','age','dw','dialca','pthassay'].forEach(k=>s.patient[k]=$('p_'+k).value);
+ FLAGS.forEach(([id])=>s.flags[id]=$('f_'+id).checked);
+ LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>s.labs[id]={now:$('l_'+id).value,prev:$('lp_'+id).value}));
+ MEDS.forEach(([,items])=>items.forEach(([id])=>s.meds[id]={on:$('m_'+id).checked,dose:getDose(id)}));
+ return s;
+}
+function setState(s){
+ ['label','date','age','dw','dialca','pthassay'].forEach(k=>{$('p_'+k).value=s.patient?.[k]??(k==='pthassay'?'intact':'')});
+ FLAGS.forEach(([id])=>$('f_'+id).checked=!!s.flags?.[id]);
+ LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>{$('l_'+id).value=s.labs?.[id]?.now??'';$('lp_'+id).value=s.labs?.[id]?.prev??''}));
+ MEDS.forEach(([,items])=>items.forEach(([id])=>{$('m_'+id).checked=!!s.meds?.[id]?.on;setDose(id,s.meds?.[id]?.dose??'')}));
+ syncDoseInputs();syncTsat();syncKtv();run();
+}
+// TSAT = Fe / TIBC × 100 を自動入力（Fe・TIBCが揃えば手入力不可）
+function syncTsat(){
+ ['l_','lp_'].forEach(pre=>{
+  const fe=num($(pre+'fe').value), tibc=num($(pre+'tibc').value), t=$(pre+'tsat');
+  if(fe!=null&&tibc){t.value=r1(fe/tibc*100);t.readOnly=true;t.classList.add('auto');t.title='Fe/TIBC×100 で自動計算';}
+  else{if(t.readOnly)t.value='';t.readOnly=false;t.classList.remove('auto');t.title='Fe・TIBCを入力すると自動計算';}
+ });
+}
+// 用量：プルダウンの値、または「その他」選択時は自由入力の値。保存値は表示用の文字列（「*」→「（最大）」）
+function getDose(id){const v=$('mds_'+id).value; return v===DOSE_OTHER?$('md_'+id).value.trim():(v?doseLabel(v):'')}
+function setDose(id,val){
+ const sel=$('mds_'+id), opt=doseOpts(id).find(o=>doseLabel(o)===val||o===val||o.replace(/[*!#]$/,'')===val.replace(/（最大）$/,''));
+ if(!val){sel.value='';$('md_'+id).value='';}
+ else if(opt){sel.value=opt;$('md_'+id).value='';}
+ else{sel.value=DOSE_OTHER;$('md_'+id).value=val;}
+}
+const atMax=(s,id)=>{const d=s.meds[id]; return !!(d?.on&&doseOpts(id).some(o=>o.endsWith('*')&&doseLabel(o)===d.dose))};
+// spKt/V（Daugirdas 第2世代式）を自動入力（必要項目が揃えば手入力不可）
+function calcKtv(pre){
+ const v=k=>num($(pre+k).value);
+ const bp=v('bun_pre'), bq=v('bun_post'), t=v('hd_time'), uf=v('uf'), w=v('wt_post')??num($('p_dw').value);
+ if(bp==null||bq==null||t==null||uf==null||!w||bp<=0) return null;
+ const R=bq/bp, x=R-0.008*t;
+ if(x<=0||R>=1) return null;
+ return -Math.log(x)+(4-3.5*R)*uf/w;
+}
+function syncKtv(){
+ ['l_','lp_'].forEach(pre=>{
+  const k=calcKtv(pre), el=$(pre+'ktv');
+  if(k!=null){el.value=(Math.round(k*100)/100).toString();el.readOnly=true;el.classList.add('auto');el.title='Daugirdas 第2世代式で自動計算';}
+  else{if(el.readOnly)el.value='';el.readOnly=false;el.classList.remove('auto');el.title='BUN（前・後）・透析時間・除水量・体重を入力すると自動計算';}
+ });
+}
+function syncDoseInputs(){MEDS.forEach(([,items])=>items.forEach(([id])=>{
+ const on=$('m_'+id).checked, sel=$('mds_'+id); sel.disabled=!on;
+ $('md_'+id).hidden=!(on&&sel.value===DOSE_OTHER);
+}))}
+
+// ---------- derived values ----------
+const corrCa=(ca,alb)=>ca==null?null:(alb!=null&&alb<4?ca+(4-alb):ca);
+function derive(s){
+ const L=k=>num(s.labs[k]?.now), P=k=>num(s.labs[k]?.prev);
+ const pthF=s.patient.pthassay==='whole'?1.7:1;
+ const tsatOf=(t,fe,tibc)=>fe!=null&&tibc?fe/tibc*100:t;
+ const d={};
+ LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>{d[id]=L(id);d[id+'_p']=P(id)}));
+ d.cCa=corrCa(L('ca'),L('alb')); d.cCa_p=corrCa(P('ca'),P('alb')??L('alb'));
+ d.ipth=L('pth')!=null?L('pth')*pthF:null; d.ipth_p=P('pth')!=null?P('pth')*pthF:null;
+ d.tsat=tsatOf(L('tsat'),L('fe'),L('tibc')); d.tsat_p=tsatOf(P('tsat'),P('fe'),P('tibc'));
+ d.dialCa=num(s.patient.dialca);
+ return d;
+}
+
+// ---------- rule engine ----------
+function evaluate(s,d){
+ const has=id=>id==='hifphi'?HIF_IDS.some(h=>!!s.meds[h]?.on):!!s.meds[id]?.on, any=ids=>ids.filter(has);
+ const F=s.flags, secs=[]; let cur;
+ const age=num(s.patient.age), elderly=age!=null&&age>=75;
+ let dom='Misc';
+ const sec=(t,dm)=>{cur={title:t,items:[]};secs.push(cur);dom=dm};
+ const add=(lvl,act,text,why='',refs='',o={})=>{const seen=new Set();cur.items.push({lvl,act,text:withBrand(text,seen),why:withBrand(why,seen),refs:refs?refs.split(','):[],dom:o.dom||dom,fx:o.fx||[],plan:withBrand(o.plan||'',new Set()),sec:cur.title})};
+ const P=d.p, Ca=d.cCa, PTH=d.ipth, R='MBD25';
+ const caB=has('caco3'), nonCa=any(['lanthanum','sevelamer','bixalomer','fecit','sfo','tenapanor']);
+ const vd=any(['alfacalcidol','calcitriol_po','vd_iv']), cm=any(['cinacalcet','evocalcet','cm_iv']);
+ const hifs=any(HIF_IDS);
+ const inflam=(d.crp!=null&&d.crp>T.CRP_hi)||F.malig;
+ const ferHigh=d.ferritin!=null&&d.ferritin>=T.Fer_hi;
+ const ironLowAny=(d.ferritin!=null&&d.ferritin<T.Fer_lo)||(d.tsat!=null&&d.tsat<T.TSAT_lo);
+
+ // ===== CKD-MBD（2025年改訂版） =====
+ sec('CKD-MBD（2025年改訂GL：P・Ca管理をPTH管理より優先）','PCa');
+ const pHi=(F.dm||F.cvd)?Math.min(T.P_hi,T.P_hi_dm):T.P_hi;
+ const Phi=P!=null&&P>=pHi, Plo=P!=null&&P<T.P_lo, Cahi=Ca!=null&&Ca>=T.Ca_hi, Calo=Ca!=null&&Ca<T.Ca_lo;
+ const pthTarget=F.fx_risk?Math.min(T.PTH_hi,T.PTH_hi_fx):T.PTH_hi, vdOnly=vd.length>0&&cm.length===0;
+ const PTHhi=PTH!=null&&PTH>=pthTarget, PTHlo=PTH!=null&&PTH<T.PTH_lo;
+ let cmDone=false;
+ if(cm.length>1) add('danger','中止','カルシミメティクスの重複投与','内服・静注を含め、カルシミメティクス同士は併用しない。','LABEL');
+ if(P!=null&&Ca!=null){
+  const row=Cahi?0:Calo?2:1, col=Phi?0:Plo?2:1, seg=row*3+col+1;
+  const lab=['高Ca','正Ca','低Ca'][row]+'・'+['高P','正P','低P'][col];
+  const tgt=`目標 P ${T.P_lo}以上${pHi}未満${pHi<T.P_hi?'（糖尿病/動脈硬化性疾患のため上限を下げて判定：Statement 3.1.2）':''}、補正Ca ${T.Ca_lo}以上${T.Ca_hi}未満。`;
+  if(seg===5) add('ok','継続',`9分割図 Seg.5：P ${P}・補正Ca ${r1(Ca)} とも目標内`,tgt,R);
+  else add((seg===1||Ca>=11||Ca<7.5||P>=7)?'danger':'warn','確認',`9分割図 Seg.${seg}（${lab}）：P ${P} mg/dL、補正Ca ${r1(Ca)} mg/dL`,
+   tgt+(elderly&&F.malnut&&Phi?'栄養状態が悪い高齢者ではこの目標値にこだわらない（Statement 3.1.2）。':''),R);
+  if(Phi) add('info','確認','高P血症：まず透析量とP制限を評価（PP3.4.1）','透析時間の延長、血流量（Qb 260 mL/分以上でP低下傾向）、HDF。食品添加物・一部の清涼飲料水・P/たんぱく質比の高い食品（乳製品など）に注意。'+(F.malnut?'低栄養のため過度なたんぱく制限は避ける。':''),R);
+  if(Cahi) add('info','確認','高Ca血症：牛乳・乳製品、Ca・ビタミンD含有サプリの摂取を確認（PP3.5.1）','薬剤を調整しても持続する場合は不動・悪性腫瘍・肉芽腫性疾患などを検索（PP3.5.3）。透析液Caは2.5〜3.0 mEq/Lの範囲で選択'+(d.dialCa!=null&&d.dialCa>=3.0?'。現在3.0 → より低い濃度への変更も選択肢':'')+'。',R);
+  // 表3.2 各分画の薬剤調整
+  const plan={1:[['vd',0],['ca',0],['cm',1],['nc',1]],2:[['vd',0],['ca',0,'（または非Ca系P低下薬へ切替）'],['cm',1]],3:[['vd',0],['ca',0],['nc',0]],
+   4:[['nc',1],['vdP',0],['cm',1]],5:[],6:[['nc',0]],7:[['ca',1],['nc',1],['cmlo',0]],8:[['vd',1],['ca',1,'（食間投与でCa補充）'],['cmlo',0]],9:[['vd',1],['nc',0],['ca',1,'（食間投与でCa補充）'],['cmlo',0]]}[seg];
+  plan.forEach(([k,up,extra=''])=>{
+   const S=`9分割図 Seg.${seg}（表3.2）`;
+   if(k==='vd'&&(up||vd.length)) add('warn',up?(vd.length?'増量':'追加'):'減量',`活性型ビタミンD製剤の${up?(vd.length?'増量':'開始'):'減量・中止'}`,S+(!up&&Cahi?'：医原性の高Ca血症を避ける。':''),R,{fx:[['vd',up?1:-1]]});
+   if(k==='vdP'&&vd.length&&P>=7) add('warn','減量','著明な高P血症：活性型ビタミンD製剤の減量・中止',S+'。VDRAは腸管からのP吸収を促進する。',R,{fx:[['vd',-1]]});
+   if(k==='ca'&&(up||caB)) add('warn',up?(caB?'増量':'追加'):'減量',`Ca製剤（沈降炭酸Ca等）の${up?(caB?'増量':'開始'):'減量・中止'}${extra}`,S+(up?'':'。乳酸Ca・グルコン酸Ca等のCa製剤もすべて含む。'),R,{fx:[['ca',up?1:-1]]});
+   if(k==='nc'&&(up||nonCa.length)) add('warn',up?(nonCa.length?'増量':'追加'):'減量',`Ca非含有P低下薬の${up?(nonCa.length?'増量・併用':'開始'):'減量・中止'}`,S+(up?'。薬剤の選択は下記「P低下薬の選び方」を参照。':''),R,{fx:[['nc',up?1:-1]]});
+   if(k==='cm'&&PTHhi&&(cmDone=true)) add('warn',cm.length?'増量':'追加',`PTH高値を伴う：カルシミメティクスの${cm.length?'増量':'開始'}`,S+'。二次性HPTに伴う高P・高Caにはカルシミメティクスを提案（Statement 3.1.6／3.2.2）。'+(cm.length?'':'開始時は添付文書の補正Ca基準を確認。エボカルセトは消化器症状・相互作用が少なく、静注薬（エテルカルセチド/ウパシカルセト）は透析時投与で確実。'),R+',LABEL',{fx:[['cm',1]]});
+   if(k==='cmlo'&&cm.length){
+    if(PTHlo||Ca<7.5) add(Ca<7.5?'danger':'warn',Ca<7.5?'休薬':'減量','カルシミメティクスの減量・中止',S+(PTHlo?'：低Ca＋PTH低値。':'：著明な低Ca血症。'),R,{fx:[['cm',-1]]});
+    else add('info','確認','低Ca血症：カルシミメティクスの増量は控える','低Ca血症ではカルシミメティクスは推奨対象外（Statement 3.1.6）。しびれ・テタニー・QT延長・低Mgを確認。',R);
+   }
+  });
+ }else if(P!=null||Ca!=null) add('info','確認','P と 補正Ca を両方入力すると9分割図で判定します','',R);
+
+ // P低下薬の選び方（表3.3・PP3.6.1）
+ if(Phi){
+  const tips=['総死亡の観点ではセベラマー、スクロオキシ水酸化鉄、テナパノルが他剤より好ましい位置づけ（Nishimoto NMA）。スクロオキシ水酸化鉄・炭酸ランタンはCa含有薬より冠動脈石灰化の進展が緩徐'];
+  if(Ca!=null&&Ca>=T.Ca_hi) tips.push('高Ca血症 → Ca含有P低下薬は避ける');
+  if(ironLowAny&&!ferHigh) tips.push('鉄欠乏（TSAT<20%またはフェリチン<100） → 鉄含有P低下薬（特にクエン酸第二鉄）で鉄動態の改善も期待');
+  if(ferHigh) tips.push('フェリチン高値 → クエン酸第二鉄は避ける');
+  if(F.constip) tips.push('便秘 → セベラマー・ビキサロマーは注意。テナパノル（下痢が多い）は選択肢');
+  if(F.diarrhea) tips.push('下痢 → 鉄含有P低下薬・テナパノルは注意');
+  if(hifs.some(h=>h!=='dap')) tips.push('HIF-PH阻害薬（ダプロデュスタット以外）併用 → Ca・La・Fe含有製剤とは服用時間をずらす');
+  if(has('ppi')||has('h2ra')) tips.push('胃酸分泌抑制薬併用 → 一部のP低下薬は胃内pHによって効果が低下');
+  tips.push('錠数負担が大きい → 1錠あたりの効果が高い炭酸ランタン・スクロオキシ水酸化鉄、または機序の異なるテナパノルの併用');
+  add('info','確認','P低下薬の選び方（患者背景別：表3.3）','・'+tips.join('\n・'),'MBD25,NMA,TENA');
+ }
+
+ // PTH（第4章）
+ dom='PTH';
+ if(PTH!=null){
+  const tgt=vdOnly?`${T.PTH_lo}以上${pthTarget}未満（活性型VD製剤のみで管理：Statement 4.1.3）`:`${pthTarget}未満で個別化、下限なし（Statement 4.1.1）`;
+  const conv=s.patient.pthassay==='whole'?'whole PTH×1.7でintact換算（PP4.2.1）。':'';
+  if(PTHhi){
+   add(PTH>=500?'danger':'warn','確認',`intact PTH ${Math.round(PTH)} pg/mL：目標超過（${tgt}）`,conv+'原則としてP・Ca管理をPTHより優先。ただしPTHを適正化するとP・Caも管理しやすくなる（PP3.3.2）。'+(F.fx_risk?'骨折リスクが高い例では目標を低めに設定（Statement 4.1.2）。':''),R);
+   const why=[Cahi&&'高Ca',Phi&&'高P',F.ptg&&'副甲状腺腫大',elderly&&'高齢',F.cvd&&'動脈硬化性疾患（心血管石灰化の可能性）',F.fx_risk&&'骨折リスク'].filter(Boolean);
+   if(Calo&&Phi) add('warn','確認','低Ca・高P＋PTH高値：まずP・Caを是正（9分割図 Seg.7：Ca製剤・Ca非含有P低下薬）','活性型ビタミンD製剤はPを上げるため、P管理の改善後に検討。低Ca血症ではカルシミメティクスは推奨対象外（Statement 3.1.6）。',R);
+   else if(Calo) add('warn',vd.length?'増量':'追加','低Caを伴うPTH高値：活性型ビタミンD製剤'+(vd.length?'の増量':'の開始'),'低Ca血症ではカルシミメティクスは推奨対象外（Statement 3.1.6）。',R,{fx:[['vd',1]]});
+   else if(why.length){ if(!cmDone) add('warn',cm.length?'増量':'追加',`カルシミメティクス${cm.length?'の増量':'の開始・併用'}を優先`,`PP4.3.4：${why.join('・')} → より積極的にカルシミメティクスを考慮。`,R,{fx:[['cm',1]]}); }
+   else add('warn',(vd.length||cm.length)?'増量':'追加','活性型ビタミンD製剤、カルシミメティクス、または両者の併用','Statement 4.3.1。どちらを開始・増量するかは血清Ca値と患者背景で選ぶ（PP4.3.3）。',R);
+   const ptx=[]; if(cm.length&&PTH>=500) ptx.push('内科的治療に抵抗する重度の二次性HPT'); if(cm.length&&Cahi) ptx.push('是正困難な高Ca血症'); if(F.tx) ptx.push('腎移植の可能性（移植後PTXを避けるため前向きに検討：PP4.5.3）');
+   if(ptx.length) add('warn','確認','副甲状腺摘出術（PTX）の適応を検討','該当：'+ptx.join('、')+'。頸部エコーで腫大腺を評価（PP4.4）。高用量のカルシミメティクスを要する場合・長期予後が見込める場合も考慮（PP4.5.2）。',R);
+  }else if(vdOnly&&PTHlo) add('warn','減量',`intact PTH ${Math.round(PTH)}：活性型VD製剤のみで管理する場合の下限（${T.PTH_lo}）未満 → 活性型ビタミンD製剤の減量`,conv+'Statement 4.1.3。',R,{fx:[['vd',-1]]});
+  else if(PTHlo&&cm.length) add('info','確認',`intact PTH ${Math.round(PTH)} pg/mL：カルシミメティクス使用中`,conv+'2025年版では下限値を設定しない。Ca・Pが目標外なら9分割図に従ってカルシミメティクスを調整。',R);
+  else add('ok','継続',`intact PTH ${Math.round(PTH)} pg/mL：目標内（${tgt}）`,conv,R);
+ }
+ dom='Misc';
+ if(d.alp!=null&&d.alp>T.ALP_hi) add('info','確認',`ALP ${d.alp} U/L：高値`,PTHhi?'PTH高値と合わせて骨回転の亢進を示唆。':'肝胆道系疾患・骨疾患を鑑別（BAPの測定も考慮）。');
+ if(d.mg!=null&&d.mg>T.Mg_hi) add('warn',has('mgo')?'減量':'確認',`Mg ${d.mg} mg/dL：高値`+(has('mgo')?' → 酸化マグネシウムの減量・中止':''),'便秘にはMg非含有下剤（ルビプロストン、リナクロチド、エロビキシバット、ポリエチレングリコール等）への変更を検討。','',{fx:has('mgo')?[['mgo',-1]]:[]});
+ if(d.mg!=null&&d.mg<T.Mg_lo) add('warn','確認',`Mg ${d.mg} mg/dL：低値`,(has('ppi')?'PPIによる低Mg血症の可能性。':'')+(has('patiromer')?'パチロマーによる低Mg血症の可能性。':'')+'低MgはPTH分泌・作用の低下、低Ca、不整脈と関連。',R);
+
+ // ===== K / acid-base =====
+ sec('カリウム・透析量','K');
+ const kb=any(['zs','patiromer','ps_ca','ps_na']);
+ if(d.k!=null){
+  if(d.k>=T.K_alert) add('danger','確認',`K ${d.k} mEq/L：著明な高値`,'心電図の確認と緊急性の評価（透析前値）。');
+  if(d.k>T.K_hi){
+   if(d.k<T.K_alert) add('warn','確認',`K ${d.k} mEq/L：高値（上限 ${T.K_hi}）`,'');
+   if(!kb.length) add('warn','追加','K吸着薬の開始','・ジルコニウムシクロケイ酸Na：血液透析患者は非透析日に1日1回5gから（最大15g）。効果発現が速い。Na負荷に注意\n・パチロマー：1日1回8.4gから（最大25.2g）。Na負荷なし、低Mgに注意、他剤と服用時間をずらす\n・ポリスチレンスルホン酸Ca'+(F.constip?'：便秘傾向のため注意':'')+'\nDIALIZE-Outcomesでは、SZCはK管理を改善したが不整脈関連イベントは減らさなかった。','LABEL,PATI,DIALIZE',{fx:[['kb',1]]});
+   else add('warn','増量','K吸着薬の増量'+((has('ps_ca')||has('ps_na'))?'、またはジルコニウムシクロケイ酸Na／パチロマーへの変更':''),'','LABEL,PATI',{fx:[['kb',1]]});
+   if(has('rasi')) add('warn','減量','RAS阻害薬の減量（高K血症）','心不全・蛋白尿・心保護など継続すべき理由があるかを確認し、なければ中止も選択肢。','',{fx:[['rasi',-1]],plan:(s.meds.rasi.dose?`${s.meds.rasi.dose} → 半量へ減量`:'現用量の半量へ減量')+`（K≥${T.K_alert}なら休薬）。1〜2週後にKと血圧を再検`});
+   add('info','確認','食事（果物・生野菜・芋類・減塩調味料のKCl）、便秘、透析効率、溶血・偽性高Kを確認','');
+  }
+  if(d.k<T.K_lo){
+   add(has('digoxin')?'danger':'warn','確認',`K ${d.k} mEq/L：低値`+(has('digoxin')?'（ジゴキシン併用：中毒リスク）':''),'摂取不良・下痢・インスリン使用を確認。透析後の低Kによる不整脈に注意。');
+   if(kb.length) add('warn','中止','K吸着薬の減量・中止','','',{fx:[['kb',-1]]});
+  }else if(d.k<4.0&&kb.length) add('info','減量','K吸着薬の減量を検討','透析前K 4.0未満：透析後の低K血症が懸念される。','',{fx:[['kb',-1]]});
+  if(d.k>=T.K_lo&&d.k<=T.K_hi) add('ok','継続',`K ${d.k} mEq/L：目標範囲内`,'');
+ }
+ if(has('mra')){
+  if(F.hf) add('info','確認','MRA：心不全の適応を再確認し、Kを厳重に監視','透析患者を対象としたACHIEVE・ALCHEMISTではCV死・心不全入院は減らず、重症高Kが増加。','ACHIEVE');
+  else add(d.k!=null&&d.k>T.K_hi?'warn':'info','中止','MRA：心血管保護目的なら中止を検討','維持透析患者のスピロノラクトンはCV死・心不全入院を減らさず（ACHIEVE 2025、ALCHEMIST）、重症高K血症が増加した。','ACHIEVE',{fx:[['mra',-1]]});
+ }
+ dom='Dial';
+ if(d.ktv!=null&&d.ktv<T.KtV_lo) add('warn','確認',`spKt/V ${d.ktv}：透析量不足`,'最低1.2、目標1.4以上。高P・高Kの是正には透析時間・血流量・HDFなど透析条件の見直しが内服調整より優先される場合がある（Statement 3.1.3）。',R,{plan:(d.hd_time!=null?`透析時間 ${d.hd_time}時間 → ${d.hd_time+0.5}時間へ延長`:'透析時間を30分延長')+'、または血流量（Qb）を20〜50 mL/分増やす／膜面積の大きいダイアライザへ変更。次回採血でspKt/Vを再評価'});
+
+ // ===== Anemia =====
+ sec('腎性貧血・鉄・亜鉛','Hb');
+ const esaLike=has('esa')||hifs.length>0, ironMeds=any(['oral_iron','iv_iron','fecit']);
+ const hifName=hifs.length?MEDS.flatMap(g=>g[1]).filter(m=>hifs.includes(m[0])).map(m=>m[1].replace('（HIF-PH阻害薬）','')).join('・'):'';
+ if(has('esa')&&hifs.length) add('danger','中止','ESAとHIF-PH阻害薬の併用は不可','いずれか一方へ切り替える。','LABEL',{plan:'どちらか一方に統一。HIF-PH阻害薬へ切り替える場合は、ESAの次回投与予定日から開始（添付文書の切替用量を参照）'});
+ if(hifs.length>1) add('danger','中止','HIF-PH阻害薬の重複投与','','LABEL');
+ const ironCrit=(d.ferritin!=null&&d.ferritin<T.Fer_lo50)?`フェリチン<${T.Fer_lo50}`
+  :(d.ferritin!=null&&d.tsat!=null&&d.ferritin<T.Fer_lo&&d.tsat<T.TSAT_lo)?`フェリチン<${T.Fer_lo} かつ TSAT<${T.TSAT_lo}%`
+  :(!inflam&&ironLowAny)?`炎症・悪性腫瘍なし＋（フェリチン<${T.Fer_lo} または TSAT<${T.TSAT_lo}%）`:null;
+ const hbNotMet=d.hb==null||d.hb<T.Hb_lo;
+ if(ironCrit&&!ferHigh&&(hbNotMet||hifs.length)){
+  add('warn',ironMeds.length?'増量':'追加',ironMeds.length?'鉄補充の継続・強化（経口で不十分なら静注へ）':'鉄補充の開始：経口鉄 クエン酸第一鉄Na 50–100 mg/日、または透析時静注鉄',
+   `該当基準：${ironCrit}。`+(Phi?'高P血症を合併 → クエン酸第二鉄も選択肢。':'')+(hifs.length?'HIF-PH阻害薬の使用中は鉄欠乏に注意（鉄需要の増加・血栓症との関連）。':''),'ANE25,HIFJSN',{fx:[['iron',1]]});
+ }else if(ironLowAny&&inflam&&!ferHigh) add('info','確認','鉄指標の低下あり（炎症・悪性腫瘍あり）','炎症下ではフェリチンが高めに出るため鉄欠乏を過小評価しうる。CRP・臨床経過と合わせて判断。','ANE25');
+ if(ferHigh&&ironMeds.length) add('warn','中止',`鉄剤の減量・中止（フェリチン ${d.ferritin} ng/mL ≥ ${T.Fer_hi}）`,has('fecit')?'クエン酸第二鉄の内服中：鉄過剰を避けるため他のP低下薬への変更を検討。':'鉄過剰の回避。','ANE25',{fx:[['iron',-1]],plan:'鉄剤を中止し、1〜3か月後にフェリチン・TSATを再評価（フェリチン<300、TSAT<20%で再開を検討）'});
+ if(d.hb!=null){
+  if(d.hb<T.Hb_lo){
+   add(d.hb<8?'danger':'warn','確認',`Hb ${d.hb} g/dL：目標未達（目標 ${T.Hb_lo}以上${T.Hb_hi}未満、週初め採血）`,'消化管出血、炎症（CRP）、鉄・亜鉛・葉酸・B12欠乏、高度の二次性HPT、透析不足、悪性腫瘍を確認。','ANE25');
+   if(hifs.length&&(F.malig||F.pdr)) add('warn','変更','HIF-PH阻害薬からESAへの切替（下記参照）','','ANE25,HIFJSN');
+   else if(esaLike) add('warn','増量',(hifs.length?hifName:'ESA')+'の増量（鉄欠乏の是正を前提）','','ANE25',{fx:[['epo',1]]});
+   else add('warn','追加','ESA または HIF-PH阻害薬の開始','HIF-PH阻害薬は悪性腫瘍・増殖糖尿病網膜症/黄斑浮腫の合併例では避け、血栓塞栓症リスクを評価。鉄が充足していることを確認して開始。'+((F.malig||F.pdr)?' → 本例はESAを選択。':'')+'担癌患者ではリスクとベネフィットを慎重に検討（CKD診療ガイド2024）。','ANE25,HIFJSN,CKDG24',{fx:[['epo',1]]});
+  }else if(d.hb>=T.Hb_hi&&esaLike){
+   add(d.hb>=T.Hb_stop?'danger':'warn',d.hb>=T.Hb_stop?'休薬':'減量',(hifs.length?hifName:'ESA')+(d.hb>=T.Hb_stop?'の休薬または大幅減量':'の減量'),`Hb ${d.hb} g/dL：目標上限（${T.Hb_hi}未満）以上。`,'ANE25',{fx:[['epo',-1]],plan:d.hb>=T.Hb_stop?`休薬し、2週後にHbを再検。${T.Hb_hi} g/dL未満になったら1段階減量した用量で再開`:''});
+  }else if(d.hb>=T.Hb_lo&&d.hb<T.Hb_hi) add('ok','継続',`Hb ${d.hb} g/dL：目標範囲内`,'','ANE25');
+  if(d.hb_p!=null&&d.hb-d.hb_p>T.Hb_rise&&esaLike) add('warn','減量',`Hbの急速な上昇（前回比 +${r1(d.hb-d.hb_p)} g/dL）`,`前回が4週以内なら、${T.Hb_rise} g/dLを超える上昇は速やかに減量・休薬（添付文書）。血栓塞栓症・血圧上昇に注意。`,'LABEL',{fx:[['epo',-1]]});
+ }
+ if(hifs.length){
+  if(F.malig||F.pdr) add('danger','中止','HIF-PH阻害薬：悪性腫瘍／増殖糖尿病網膜症・黄斑浮腫の合併例では投与を避ける','ESAへの切替を検討。','HIFJSN');
+  if(F.thromb) add('warn','確認','HIF-PH阻害薬：血栓塞栓症の既往あり → 慎重投与','','HIFJSN,LABEL');
+  if(has('dap')&&has('clopidogrel')) add('warn','確認','ダプロデュスタット＋クロピドグレル：CYP2C8阻害でダプロデュスタットの血中濃度が上昇','併用注意。Hbの推移を確認し、必要なら減量。','LABEL');
+  if(has('dap')&&F.hf) add('warn','確認','ダプロデュスタット：心不全またはその既往あり','添付文書の注意事項を確認し、体液量・心不全症状を監視。','LABEL');
+  if(has('rox')) add('info','確認','ロキサデュスタット：中枢性甲状腺機能低下症（重大な副作用）','TSH・FT4を定期的に測定。','LABEL');
+  const poly=any(['caco3','lanthanum','fecit','sfo','oral_iron','mgo']), polymer=any(['sevelamer','bixalomer']);
+  const affected=hifs.filter(h=>h!=='dap');
+  if(affected.length&&(poly.length||(has('rox')&&polymer.length))) add('info','確認','HIF-PH阻害薬と多価陽イオン含有薬（鉄剤・Ca/La/Fe/Mg含有製剤）の服用タイミング',(has('rox')&&polymer.length?'ロキサデュスタットはリン結合性ポリマー（セベラマー等）でもAUCが低下。':'')+'同時服用で吸収が低下するため、添付文書に従って服用時間をずらす。ダプロデュスタットはこの相互作用がない。','LABEL,MBD25');
+  add('info','確認','HIF-PH阻害薬のHbモニタリング','目標範囲で安定するまで2週に1回程度、その後は4週に1回程度Hbを確認。血圧の推移にも注意。','LABEL');
+ }
+ if(d.zn!=null){
+  if(d.zn<T.Zn_lo) add('warn',has('zinc')?'増量':'追加',`Zn ${d.zn} µg/dL：亜鉛欠乏 → 酢酸亜鉛`+(has('zinc')?'の増量':'の開始'),'味覚障害・ESA低反応性の一因となる。長期投与では銅欠乏（貧血・白血球減少）に注意し血清Cuを測定。','LABEL',{plan:has('zinc')?(stepUp(s,'zinc')?`酢酸亜鉛 ${stepUp(s,'zinc')}。2〜3か月後にZn・Cuを再検`:''):'酢酸亜鉛 1回25mg 1日1回から開始（効果不十分なら1日2回）。2〜3か月後にZn・Cuを再検'});
+  else if(d.zn<T.Zn_border&&!has('zinc')) add('info','確認',`Zn ${d.zn} µg/dL：潜在性亜鉛欠乏`,'味覚障害・皮膚炎・ESA低反応性などがあれば補充を検討。');
+  else if(d.zn>130&&has('zinc')) add('warn','減量','酢酸亜鉛の減量','Zn高値。銅欠乏に注意。');
+ }else if(has('zinc')) add('info','確認','酢酸亜鉛の内服中：血清Zn・Cuを定期的に測定','');
+
+ // ===== Diabetes =====
+ sec('糖代謝（透析患者の糖尿病治療ガイド2025）','DM');
+ const dmAlt=has('dpp4')?'血糖はGA・透析前血糖で再評価し、必要ならGLP-1受容体作動薬（デュラグルチド 0.75mg 週1回）またはインスリンを追加':'代替：リナグリプチン 5mg 1日1回（用量調節不要）またはテネリグリプチン 20mg 1日1回';
+ if(has('metformin')) add('danger','中止','メトホルミン（ビグアナイド薬）：透析患者は禁忌','乳酸アシドーシス。','DM25,LABEL',{plan:'即日中止。'+dmAlt});
+ if(has('su')) add('danger','中止','SU薬：透析患者は禁忌','遷延性低血糖。','DM25,LABEL',{plan:'即日中止（中止後数日は低血糖に注意）。'+dmAlt});
+ if(has('tzd')) add('danger','中止','チアゾリジン薬：透析患者は禁忌または推奨しない','体液貯留・心不全。','DM25,LABEL',{plan:'中止。'+dmAlt});
+ if(has('sglt2')) add('warn','中止','SGLT2阻害薬：透析患者は推奨しない（CKD適応も「透析施行中を除く」）','無尿では血糖降下作用が期待できない。透析患者を含むRCT（RENAL LIFECYCLE）は進行中。','DM25,LIFE',{plan:'中止。'+dmAlt});
+ if(has('imeglimin')) add('warn','中止','イメグリミン：eGFR 45未満では投与は推奨されない','透析患者は対象外。','LABEL',{plan:'中止。'+dmAlt});
+ if(has('glinide')) add('info','確認','グリニド薬：ナテグリニドは透析患者禁忌。ミチグリニド・レパグリニドは低用量から慎重に','','DM25,LABEL');
+ if(has('insulin')) add('info','確認','インスリン：透析日は血糖変動が大きい','透析日は25〜50%減量や責任インスリンの調整を検討。透析終了時の血糖が90 mg/dL未満なら透析起因性低血糖のハイリスク。','DM25');
+ if(d.glu!=null&&d.glu>=T.Glu_hi) add('warn','確認',`透析前血糖 ${d.glu} mg/dL：高値`,'目標は透析前（随時）血糖 180〜200 mg/dL未満。','DM25');
+ if(d.ga!=null){
+  const gt=(F.cvd||F.malnut)?T.GA_hi_cvd:T.GA_hi;
+  if(d.ga>=gt){
+   const dmMeds=any(['dpp4','insulin','glp1','agi','glinide']);
+   add('warn',dmMeds.length?'増量':'追加',`GA ${d.ga}%：目標未達（${gt}%未満${(F.cvd||F.malnut)?'：心血管疾患/低栄養':''}）`,
+    (has('dpp4')?'':'内服ならDPP-4阻害薬を第一選択として考慮（低血糖リスクが低い）。')+'GLP-1受容体作動薬はBMI高値や透析間体重増加が多い例で選択肢。α-GI・グリニド・インスリンも使用可能。','DM25',{plan:!has('dpp4')?'リナグリプチン 5mg 1日1回（用量調節不要）またはテネリグリプチン 20mg 1日1回から開始。4〜8週後にGAで評価':(stepUp(s,'dpp4')?`DPP-4阻害薬 ${stepUp(s,'dpp4')}（透析患者の上限内）。4〜8週後にGAで評価`:(has('insulin')?'責任インスリンを1〜2単位（約10%）ずつ増量。透析日は減量を考慮し、透析前・透析後の血糖を確認':(has('glp1')?(stepUp(s,'glp1')?`GLP-1受容体作動薬 ${stepUp(s,'glp1')}`:'インスリンの追加を検討（基礎インスリン 0.1単位/kg程度から）'):'GLP-1受容体作動薬を追加：デュラグルチド 0.75mg 週1回皮下注（用量調節不要）')))});
+  }else if(d.ga<16&&(has('insulin')||has('glinide'))) add('warn','減量',`GA ${d.ga}%：低値（低血糖リスク）`,'インスリン・グリニドの減量を検討。','DM25');
+  else add('ok','継続',`GA ${d.ga}%：目標範囲内（${gt}%未満）`,'','DM25');
+ }
+ if(d.ga!=null&&d.ga<16&&(has('insulin')||has('glinide'))) cur.items[cur.items.length-1].plan=has('insulin')?'インスリンを10〜20%減量（特に透析日）。低血糖時の対応を指導':(stepDown(s,'glinide')?`グリニド薬 ${stepDown(s,'glinide')}`:'グリニド薬を減量');
+ if(d.hba1c!=null) add('info','確認','HbA1cは貧血・ESA使用で低値に偏るため、GAと血糖値で評価','','DM25');
+
+ // ===== Lipids =====
+ sec('脂質','Lip');
+ if(has('fibrate')) add('danger','中止','ベザフィブラート・フェノフィブラート：透析患者は禁忌','横紋筋融解症。ペマフィブラートは添付文書で確認。','LABEL');
+ {
+  const lt=F.cvd?T.LDL_hi_cvd:T.LDL_hi, nt=F.cvd?T.nonHDL_hi_cvd:T.nonHDL_hi;
+  const hiL=d.ldl!=null&&d.ldl>=lt, hiN=d.nonhdl!=null&&d.nonhdl>=nt;
+  if(hiL||hiN){
+   const txt=[hiL?`LDL-C ${d.ldl}（<${lt}）`:'',hiN?`non-HDL-C ${d.nonhdl}（<${nt}）`:''].filter(Boolean).join('、');
+   if(!has('statin')) add('info','追加',`${txt}：スタチン ± エゼチミブを検討`,'SHARPではシンバスタチン＋エゼチミブで動脈硬化性イベントが減少。一方、透析患者での新規開始の有益性は限定的（4D, AURORA）→ 予後・CVリスクを考慮。','',{plan:'アトルバスタチン 5〜10mg 1日1回（腎機能による調節不要）から開始、またはロスバスタチン 2.5mg（透析患者の上限5mg）。4〜12週後に脂質・CKを確認'});
+   else add('info',has('ezetimibe')?'増量':'追加',`${txt}：スタチン増量またはエゼチミブ併用`,'','',{plan:[stepUp(s,'statin')?`スタチン ${stepUp(s,'statin')}`:'スタチンは上限量',has('ezetimibe')?'':'エゼチミブ 10mg 1日1回を追加'].join('、または')+'。4〜12週後に脂質を確認'});
+  }else if(d.ldl!=null||d.nonhdl!=null) add('ok','継続','脂質は管理目標内',F.cvd?'二次予防目標':'一次予防目標');
+ }
+
+ // ===== Uric acid =====
+ sec('尿酸','UA');
+ const uaMeds=any(['allopurinol','febuxostat','topiroxostat']);
+ if(d.ua!=null){
+  if(d.ua>=T.UA_hi){
+   if(F.gout) add('warn',uaMeds.length?'増量':'追加',`UA ${d.ua} mg/dL＋痛風既往：尿酸降下薬`+(uaMeds.length?'の増量':'の開始'),'フェブキソスタット・トピロキソスタットは腎機能による用量調節が少ない。CVD合併例ではフェブキソスタットの心血管死リスク（CARES）に留意。尿酸排泄促進薬は無尿例で無効。','',{plan:has('febuxostat')?(stepUp(s,'febuxostat')?`フェブキソスタット ${stepUp(s,'febuxostat')}（2週以上あけて）`:'フェブキソスタットは上限量'):has('allopurinol')?'アロプリノールは透析患者では増量できない（上限 100mg 週3回 HD後）→ フェブキソスタット 10mg/日へ変更を検討':'フェブキソスタット 1日10mgから開始、2週以降20mg、6週以降40mg（最大60mg）。痛風発作の誘発に注意（開始直後）'});
+   else add('info','確認',`UA ${d.ua} mg/dL：高値（無症候性）`,'透析患者の無症候性高尿酸血症に対する薬物治療の有益性は確立していない。');
+  }else if(d.ua<3&&uaMeds.length) add('info','減量',`UA ${d.ua} mg/dL：尿酸降下薬の減量`,'');
+ }
+
+ // ===== Nutrition / safety =====
+ sec('透析患者の用量チェック','Safe');
+ MEDS.forEach(([,items])=>items.forEach(([id,n,b])=>{
+  if(!has(id)) return;
+  const f=doseFlag(s,id), dose=(s.meds[id].dose||'').replace(/（(最大|透析で過量|透析で禁忌)）$/,''), note=HDNOTE[id]||'';
+  const nm=/^[ァ-ヶー]{3,}/.test(dose)?dose:`${n} ${dose}`.trim();
+  if(f==='#') add('danger','中止',`${nm}：透析患者で禁忌`,note,'LABEL,JSNP',{plan:id==='mra'?'中止。1〜2週後にK・血圧を確認':id==='glinide'?'中止。代替：ミチグリニド 5mg 1日3回 食直前 または リナグリプチン 5mg 1日1回':'中止し、代替薬を検討'});
+  else if(f==='!'){
+   const opts=doseOpts(id), cur=opts.find(o=>doseLabel(o)===s.meds[id].dose), a=agentOf(cur);
+   const ok=opts.filter(o=>agentOf(o)===a&&!/[!#]$/.test(o));
+   add('warn','減量',`${nm}：透析患者の推奨量を超えている`,note,'JSNP,LABEL',{plan:ok.length?`${clean(cur)} → ${clean(ok[ok.length-1])}${ok.length>1?`（または ${clean(ok[0])}）`:''} へ減量`:'他剤への変更を検討'});
+  }
+  else if(f==='free'&&note) add('info','確認',`${nm}：透析患者での用量を確認`,note,'JSNP,LABEL');
+  else if((f==='ok'||f==='*')&&note) add('ok','継続',`${nm}：透析患者の用量範囲内`,note,'JSNP,LABEL');
+  else if(f===''&&note) add('info','確認',`${n}：用量が未選択（透析患者では用量調節が必要）`,note,'JSNP,LABEL');
+ }));
+ if(has('mra')&&!F.urine&&/スピロノラクトン/.test(s.meds.mra.dose||'')) add('danger','中止','スピロノラクトン：無尿の患者は禁忌','残腎尿量がない場合は投与しない（添付文書）。','LABEL');
+
+ sec('栄養・炎症・薬剤安全性','Nut');
+ if(d.alb!=null&&d.alb<T.Alb_lo) add('warn','確認',`Alb ${d.alb} g/dL：低栄養リスク`,'GNRI等で評価。過度なP・K・たんぱく制限を避け、必要なら薬剤で管理。');
+ if(d.crp!=null&&d.crp>T.CRP_hi) add('info','確認',`CRP ${d.crp} mg/dL：炎症`,'フェリチン上昇・Alb低下・ESA低反応性の解釈に注意。感染源（バスキュラーアクセス等）を検索。');
+ if(has('al')) add('danger','中止','アルミニウム含有製剤：透析患者は禁忌','アルミニウム脳症・骨症。','LABEL',{plan:'中止。胃粘膜保護が目的ならPPI（例：ランソプラゾール 15mg）等へ、P低下が目的ならCa非含有P低下薬へ切替'});
+ if(has('doac')) add('danger','変更','DOAC：国内添付文書では透析患者（CrCl<15）は禁忌','ワルファリン等への変更を検討。','LABEL',{plan:'抗凝固の適応を再評価。継続するならワルファリンへ切替（少量から開始しPT-INRで調整。透析患者は出血リスクが高いため目標INRは低めに設定することが多い）'});
+ if(has('nsaids')) add('warn','確認','NSAIDs：消化管出血・残腎機能低下・高Kのリスク','アセトアミノフェン等への変更を検討。'+(F.urine?'残腎尿量あり：残腎保護の観点から特に注意。':''));
+ if(has('mgo')&&d.mg==null) add('info','確認','酸化マグネシウムの内服中：血清Mgを測定','');
+ if(has('ps_na')) add('info','確認','ポリスチレンスルホン酸Na：Na負荷（体液過剰）に注意','');
+
+ // 具体案（明示がなければ作用群と現在の用量から生成）
+ const ctx={s,d,F,ironLow:ironLowAny&&!ferHigh,Phi,Cahi,hifOK:!(F.malig||F.pdr)};
+ secs.forEach(x=>x.items.forEach(it=>{ if(!it.plan&&ACTIONS.includes(it.act)) it.plan=withBrand(autoPlan(it,ctx),new Set()); }));
+ const out=secs.filter(x=>x.items.length);
+ return {secs:out,ranked:prioritize(out,s,{
+  P:Phi?1:Plo?-1:0, Ca:Cahi?1:Calo?-1:0, PTH:PTHhi?1:(PTHlo&&vdOnly)?-1:0,
+  K:d.k==null?0:d.k>T.K_hi?1:d.k<T.K_lo?-1:0, Hb:d.hb==null?0:d.hb>=T.Hb_hi?1:d.hb<T.Hb_lo?-1:0,
+  Mg:d.mg==null?0:d.mg>T.Mg_hi?1:d.mg<T.Mg_lo?-1:0})};
+}
+
+// ---------- 優先順位・矛盾チェック ----------
+// 薬剤群が各検査値を動かす方向（+1 上げる / -1 下げる）
+const FXG={rasi:{K:1},vd:{P:1,Ca:1,PTH:-1},ca:{P:-1,Ca:1,PTH:-1},nc:{P:-1},cm:{PTH:-1,Ca:-1,P:-1},kb:{K:-1},mra:{K:1},nahco3:{K:-1},epo:{Hb:1},iron:{Hb:1},mgo:{Mg:1}};
+const GNAME={rasi:'RAS阻害薬',vd:'活性型ビタミンD製剤',ca:'Ca製剤',nc:'Ca非含有P低下薬',cm:'カルシミメティクス',kb:'K吸着薬',mra:'MRA',nahco3:'炭酸水素Na',epo:'ESA/HIF-PH阻害薬',iron:'鉄剤',mgo:'酸化マグネシウム'};
+const LABJ={P:'P',Ca:'補正Ca',PTH:'PTH',K:'K',Hb:'Hb',Mg:'Mg'};
+// 管理の優先度（小さいほど優先）：安全性 → K → P・Ca（PP3.3.1）→ 透析量 → 貧血 → 酸塩基 → PTH → その他
+const DOMPRI={Safe:0,K:1,PCa:2,Dial:3,Hb:4,Acid:5,PTH:6,Misc:7,DM:7,Nut:8,Lip:9,UA:9};
+const LABPRI={K:1,P:2,Ca:2,Hb:4,PTH:6,Mg:7};
+const DOMJ={Safe:'透析用量',K:'K',PCa:'P・Ca',Dial:'透析量',Hb:'貧血',Acid:'酸塩基',PTH:'PTH',Misc:'その他',DM:'糖代謝',Nut:'栄養・安全性',Lip:'脂質',UA:'尿酸'};
+const ACTIONS=['追加','増量','減量','中止','休薬','変更'];
+const STATUS_RE=/^(9分割図|intact PTH|K \d|Hb \d|GA |透析前血糖|Alb |CRP |Mg \d|ALP |P と|鉄指標|UA \d)/;
+function score(it){
+ const lv={danger:0,warn:1,info:2,ok:3}[it.lvl];
+ const ac={中止:0,休薬:0,減量:1,変更:2,追加:3,増量:3,確認:4,継続:5}[it.act]??4;
+ return lv*1000+(DOMPRI[it.dom]??7)*10+ac+(it.serious?1500:0);
+}
+// ---------- 具体案（用量の段階的な増減・開始量） ----------
+const clean=o=>o.replace(/[*!#]$/,'');
+const agentOf=o=>(o.match(/^[ァ-ヶー]{3,}/)||[''])[0];
+const nameFor=(s,id)=>/^[ァ-ヶー]{3,}/.test(s.meds[id]?.dose||'')?'':shortName(id)+' ';
+const shortName=id=>{const m=MEDS.flatMap(g=>g[1]).find(m=>m[0]===id); return m?m[1].replace(/（.*?）/g,''):id};
+function curDose(s,id){const d=s.meds[id]?.dose; if(!d) return null; const opts=doseOpts(id); return {d,opts,i:opts.findIndex(o=>doseLabel(o)===d)}}
+// 1段階増量：同じ薬剤の次の選択肢（透析で過量・禁忌の手前まで）
+function stepUp(s,id){
+ const c=curDose(s,id); if(!c) return null; if(c.i<0) return `${c.d} → 1段階増量`;
+ const a=agentOf(c.opts[c.i]);
+ for(let j=c.i+1;j<c.opts.length;j++){const o=c.opts[j]; if(agentOf(o)!==a||/[!#]$/.test(o)) break; return `${clean(c.opts[c.i])} → ${clean(o)}`;}
+ return null;
+}
+function stepDown(s,id){
+ const c=curDose(s,id); if(!c) return null; if(c.i<0) return `${c.d} → 1段階減量`;
+ const a=agentOf(c.opts[c.i]);
+ for(let j=c.i-1;j>=0;j--){const o=c.opts[j]; if(agentOf(o)!==a) break; if(/[!#]$/.test(o)) continue; return `${clean(c.opts[c.i])} → ${clean(o)}`;}
+ return `${clean(c.opts[c.i])} → 中止`;
+}
+// 増量の間隔・刻み
+const TITR={
+ cm:'シナカルセトは25mgずつ3週以上、エボカルセトは1mgずつ2週以上、エテルカルセチドは2.5〜5mgずつ4週以上あけて。開始・増量後1〜2週で補正Caを確認',
+ nc:'1〜2週以上あけてP値を見ながら',vd:'2〜4週ごとにCa・P・PTHを確認',ca:'1〜2週後にCa・Pを確認',
+ kb:'1週以上あけて、1週後にKを再検',epo:'4週以上あけて。Hbは2〜4週ごとに確認（4週で+2.0 g/dLを超える上昇は減量）',iron:'1〜3か月後にフェリチン・TSATを再評価',
+ nahco3:'',mgo:'',rasi:'1〜2週後にKを再検',mra:''
+};
+// 薬剤ごとの増量間隔（群より優先）
+const TITR_ID={cinacalcet:'25mgずつ3週以上あけて。増量後1〜2週で補正Caを確認',evocalcet:'1mgずつ2週以上あけて。増量後1〜2週で補正Caを確認',cm_iv:'エテルカルセチドは2.5〜5mgずつ4週以上あけて。増量後1〜2週で補正Caを確認',
+ zs:'5gずつ1週以上あけて、1週後にKを再検',patiromer:'8.4gずつ1週以上あけて、1週後にKを再検'};
+// 使用中の薬が上限量のときの次の一手
+const MAXALT={
+ nc:c=>c.using.includes('tenapanor')?'別系統のP吸着薬を併用（例：スクロオキシ水酸化鉄 1回250mg 1日3回 食直前から）':'テナパノル 1回5mg 1日2回 朝・夕食直前を併用（吸着薬と機序が異なる）',
+ cm:c=>'活性型ビタミンD製剤の少量併用（アルファカルシドール 0.25µg/日）、またはPTXの適応を検討',
+ kb:c=>c.using.includes('zs')?'パチロマー 8.4g 1日1回への変更、または透析液K濃度・透析時間の見直し':'ジルコニウムシクロケイ酸Na 5g 非透析日に1日1回へ変更',
+ epo:c=>'ESA低反応性の原因（鉄・亜鉛欠乏、炎症、出血、透析不足、高度の二次性HPT）を検索し、ESA⇔HIF-PH阻害薬の切替を検討',
+ vd:c=>'カルシミメティクスの併用を検討',ca:c=>'Ca非含有P低下薬を併用',iron:c=>'静注鉄（含糖酸化鉄 40mg 透析終了時）へ変更',
+};
+// 新規開始の具体案（患者背景で選択）
+const START={
+ nc:c=>c.ironLow?'クエン酸第二鉄 1回500mg 1日3回 食直後（1500mg/日）から開始。鉄欠乏の改善も期待。フェリチン≥300で他剤へ':
+   c.F.constip?'テナパノル 1回5mg 1日2回 朝・夕食直前から開始（下痢に注意。便秘例では利点）':
+   'スクロオキシ水酸化鉄 1回250mg 1日3回 食直前（750mg/日）から開始。代替：炭酸ランタン 1回250mg 1日3回 食直後（750mg/日）',
+ cm:c=>'エボカルセト 1日1回1mgから開始（最大12mg）、2週以上あけて1mgずつ増量。服薬が不確実ならエテルカルセチド 1回5mg 週3回 透析終了時静注。開始前に補正Caが添付文書の基準以上であることを確認',
+ vd:c=>'アルファカルシドール 1日1回0.25µgから開始、2〜4週ごとにCa・P・PTHを確認して0.25µgずつ調整',
+ ca:(c,it)=>/食間/.test(it.text)?'沈降炭酸Ca 1回0.5g 1日2〜3回 食間（Ca補充目的）から開始。1〜2週後に補正Caを確認':'沈降炭酸Ca 1回0.5g 1日3回 食直後（1.5g/日）から開始（最大3g/日）。1〜2週後にCa・Pを確認',
+ kb:c=>c.F.constip?'ジルコニウムシクロケイ酸Na 5g 非透析日に1日1回から開始（最大15g）。1週後にKを再検':
+   'ジルコニウムシクロケイ酸Na 5g 非透析日に1日1回から開始（最大15g）、またはパチロマー 8.4g 1日1回（Na負荷を避けたい場合）。1週後にKを再検',
+ epo:c=>'ダルベポエチン（ネスプ）初回20µg 週1回 透析時静注、またはミルセラ 初回50µg 2週1回'+(c.hifOK?'。内服を希望する場合：ダプロデュスタット 1日1回4mg（透析）':'')+'。鉄が充足していることを確認してから開始',
+ iron:c=>c.Phi?'クエン酸第二鉄 1回500mg 1日3回 食直後（P低下と鉄補充を兼ねる）、またはクエン酸第一鉄Na 50mg 1日1回':'クエン酸第一鉄Na 50mg 1日1回（不十分なら100mg 分2）、または含糖酸化鉄 40mg 週1回 透析終了時静注。1〜3か月後にフェリチン・TSATを再評価（フェリチン≥300で中止）',
+ nahco3:c=>'炭酸水素Na 1回0.5g 1日2〜3回（1〜1.5g/日）から開始',
+};
+function autoPlan(it,c){
+ const f=it.fx[0]; if(!f) return '';
+ const [g,dir]=f, s=c.s, using=(GMEDS[g]||[]).filter(id=>s.meds[id]?.on); c.using=using;
+ const tOf=id=>TITR_ID[id]||TITR[g]||'', t=TITR[g]?`（${TITR[g]}）`:'';
+ if(dir>0){
+  if(!using.length) return START[g]?START[g](c,it):'';
+  const parts=using.map(id=>{const st=stepUp(s,id); return st?`${nameFor(s,id)}${st}`+(tOf(id)?`（${tOf(id)}）`:''):(curDose(s,id)?`${shortName(id)}は上限量`:`${shortName(id)}（用量を選択すると増量幅を表示）`)});
+  const allMax=using.every(id=>curDose(s,id)&&!stepUp(s,id));
+  return parts.join('／')+(allMax&&(MAXALT[g]||START[g])?`。上限のため次の一手：${(MAXALT[g]||START[g])(c,it)}`:'');
+ }
+ if(!using.length) return '';
+ if(g==='mra') return 'MRAを中止（漸減不要）。1〜2週後にK・血圧を確認';
+ if(g==='ca'&&c.Cahi) return using.map(id=>{const cd=curDose(s,id); return `${shortName(id)} ${cd?clean(cd.i>=0?cd.opts[cd.i]:cd.d)+' → ':''}中止（または半量）`}).join('／')+'し、P管理はCa非含有P低下薬へ置換（1〜2週後にCa・Pを確認）';
+ return using.map(id=>{const st=stepDown(s,id); return st?`${nameFor(s,id)}${st}`:`${shortName(id)}（用量を選択すると減量幅を表示）`}).join('／')+(t?t:'')+(g==='mgo'?'。便秘には ルビプロストン 24µg 1日1〜2回、リナクロチド 0.5mg 1日1回、エロビキシバット 10mg 1日1回 等へ':'');
+}
+
+// 薬剤群 → 該当する処方ID（最大用量の判定用）
+const GMEDS={vd:['alfacalcidol','calcitriol_po','vd_iv'],ca:['caco3'],nc:['lanthanum','sevelamer','bixalomer','fecit','sfo','tenapanor'],cm:['cinacalcet','evocalcet','cm_iv'],
+ kb:['zs','patiromer','ps_ca','ps_na'],epo:['esa','dap','vad','ena','mol','rox'],iron:['oral_iron','iv_iron'],nahco3:['nahco3'],mgo:['mgo'],mra:['mra'],rasi:['rasi']};
+function prioritize(secs,s,st){
+ const all=secs.flatMap(x=>x.items);
+ all.forEach(it=>{
+  it.notes=[]; it.eff={};
+  it.fx.forEach(([g,dir])=>Object.entries(FXG[g]).forEach(([lab,v])=>{it.eff[lab]=(it.eff[lab]||0)+v*dir}));
+ });
+ const act=all.filter(it=>ACTIONS.includes(it.act)&&it.lvl!=='ok');
+ // 1) 同じ薬剤群に「増やす」と「減らす」が両方ある → 優先度の高い方を採用
+ const byG={};
+ act.forEach(it=>it.fx.forEach(([g,dir])=>(byG[g]=byG[g]||[]).push([it,dir])));
+ Object.entries(byG).forEach(([g,arr])=>{
+  if(!(arr.some(a=>a[1]>0)&&arr.some(a=>a[1]<0))) return;
+  arr.sort((a,b)=>score(a[0])-score(b[0]));
+  const [win,wdir]=arr[0];
+  arr.forEach(([it,dir])=>{ if(dir!==wdir){ it.superseded=true;
+   it.notes.push({t:'sup',s:`相反する提案あり：より優先度の高い${DOMJ[win.dom]}の管理（${GNAME[g]}の${wdir>0?'開始・増量':'減量・中止'}）を優先`}); }});
+ });
+ // 2) 現在範囲外の検査値をさらに悪化させる提案を検出
+ const live=act.filter(it=>!it.superseded);
+ live.forEach(it=>Object.entries(it.eff).forEach(([lab,v])=>{
+  if(!v||!st[lab]||Math.sign(v)!==st[lab]) return;
+  const mv=v>0?'上げる':'下げる', now=st[lab]>0?'高値':'低値';
+  const cands=live.filter(o=>o!==it&&o.eff[lab]&&Math.sign(o.eff[lab])===-st[lab]);
+  // 「その検査値のために開始・増量する薬」→ 作用が単一で特異的な薬 の順に選ぶ
+  const rankC=o=>{const f=o.fx.find(([g,dir])=>FXG[g][lab]&&Math.sign(FXG[g][lab]*dir)===-st[lab]); return f?(f[1]>0?0:10)+Object.keys(FXG[f[0]]).length:99};
+  const comp=cands.sort((x,y)=>rankC(x)-rankC(y))[0];
+  if(comp){
+   const [g,dir]=comp.fx.find(([g,dr])=>FXG[g][lab]&&Math.sign(FXG[g][lab]*dr)===-st[lab])||comp.fx[0];
+   it.notes.push({t:'comp',s:`${LABJ[lab]}を${mv}方向に働く（現在${now}）→ 同時に「${GNAME[g]}の${dir>0?'開始・増量':'減量・中止'}」で補う`});
+  }else if(LABPRI[lab]<=(DOMPRI[it.dom]??7)){
+   it.serious=true;
+   it.notes.push({t:'serious',s:`⚠ ${LABJ[lab]}を${mv}方向に働く（現在${now}）。${LABJ[lab]}はこの提案の目的より優先度が高いため、実施は慎重に再検討`});
+  }else it.notes.push({t:'trade',s:`${LABJ[lab]}を${mv}方向に働く（現在${now}）。${DOMJ[it.dom]}の管理を優先するため許容し、経過を観察`});
+ }));
+ // 3) 増量の提案だが、使用中の薬がすでに最大用量
+ live.filter(it=>it.act==='増量'&&!/上限/.test(it.plan||'')).forEach(it=>it.fx.filter(([,dir])=>dir>0).forEach(([g])=>{
+  const using=(GMEDS[g]||[]).filter(id=>s.meds[id]?.on), maxed=using.filter(id=>atMax(s,id));
+  if(!maxed.length) return;
+  const names=maxed.map(id=>MEDS.flatMap(x=>x[1]).find(m=>m[0]===id)[1]).join('・');
+  it.notes.push({t:'max',s:`${names}はすでに最大用量 → 増量ではなく${maxed.length===using.length?'作用機序の異なる薬剤の併用・変更':'他の使用中薬剤の増量または併用・変更'}を検討`});
+ }));
+ return all.filter(it=>!it.superseded&&it.lvl!=='ok'&&(ACTIONS.includes(it.act)||it.lvl==='danger'||(it.lvl==='warn'&&!STATUS_RE.test(it.text))))
+  .sort((a,b)=>score(a)-score(b));
+}
+
+// ---------- chips ----------
+function chipList(d){
+ const F=getState().flags;
+ const c=[];
+ // lo: 下限（未満で範囲外）、hi: 上限（未満が目標＝hi以上で範囲外）
+ const pushC=(name,v,vp,lo,hi,unit,dec=1)=>{
+  if(v==null)return;
+  const st=((lo!=null&&v<lo)||(hi!=null&&v>=hi))?'warn':'ok';
+  const fmt=x=>dec===0?Math.round(x):dec===2?(Math.round(x*100)/100):r1(x);
+  let delta=''; if(vp!=null){const df=v-vp; delta=` <span style="opacity:.8">${df>0?'↑':df<0?'↓':'→'}${fmt(Math.abs(df))}</span>`}
+  c.push({st,html:`${name} <b>${fmt(v)}</b>${unit?' '+unit:''}${delta}`});
+ };
+ const pHi=(F.dm||F.cvd)?Math.min(T.P_hi,T.P_hi_dm):T.P_hi;
+ pushC('P',d.p,d.p_p,T.P_lo,pHi,'');
+ pushC('補正Ca',d.cCa,d.cCa_p,T.Ca_lo,T.Ca_hi,'');
+ pushC('iPTH',d.ipth,d.ipth_p,null,F.fx_risk?Math.min(T.PTH_hi,T.PTH_hi_fx):T.PTH_hi,'',0);
+ pushC('K',d.k,d.k_p,T.K_lo,T.K_hi+1e-9,'');
+ pushC('Hb',d.hb,d.hb_p,T.Hb_lo,T.Hb_hi,'');
+ pushC('フェリチン',d.ferritin,d.ferritin_p,T.Fer_lo,T.Fer_hi,'',0);
+ pushC('TSAT',d.tsat,d.tsat_p,T.TSAT_lo,null,'%');
+ pushC('Alb',d.alb,d.alb_p,T.Alb_lo,null,'');
+ pushC('Mg',d.mg,d.mg_p,T.Mg_lo,T.Mg_hi+1e-9,'');
+ pushC('Zn',d.zn,d.zn_p,T.Zn_border,null,'',0);
+ pushC('血糖',d.glu,d.glu_p,null,T.Glu_hi,'',0);
+ pushC('GA',d.ga,d.ga_p,null,(F.cvd||F.malnut)?T.GA_hi_cvd:T.GA_hi,'%');
+ pushC('LDL',d.ldl,d.ldl_p,null,F.cvd?T.LDL_hi_cvd:T.LDL_hi,'',0);
+ pushC('UA',d.ua,d.ua_p,null,T.UA_hi,'');
+ pushC('Kt/V',d.ktv,d.ktv_p,T.KtV_lo,null,'',2);
+ c.forEach(x=>{ if(x.st==='warn'&&/^K <b>([\d.]+)/.test(x.html)&&parseFloat(RegExp.$1)>=T.K_alert) x.st='danger'});
+ return c;
+}
+
+// ---------- render ----------
+const LV={danger:'要対応',warn:'検討',info:'参考',ok:'良好'};
+function itemHtml(i,rank){
+ const notes=(i.notes||[]).map(n=>`<div class="nt ${n.t}">${esc(n.s)}</div>`).join('');
+ return `<div class="item ${i.lvl}${i.superseded?' sup':''}"><div class="tag">${esc(i.act)}</div><div>${rank?`<div class="dm">${esc(DOMJ[i.dom]||'')}${i.serious?' ・要再検討':''}</div>`:''}<div>${esc(i.text)}</div>${i.plan?`<div class="plan"><b>具体案：</b>${esc(i.plan)}</div>`:''}${notes}${i.why?`<div class="why">${esc(i.why)}</div>`:''}${i.refs.length?`<div class="refs">${i.refs.map(r=>`<a href="#ref-${r}">${esc(REFS[r].s)}</a>`).join('')}</div>`:''}</div></div>`;
+}
+function run(){
+ const s=getState(), d=derive(s), {secs,ranked}=evaluate(s,d);
+ const chips=chipList(d);
+ $('chips').innerHTML=chips.length?chips.map(c=>`<span class="chip ${c.st}">${c.html}</span>`).join(''):'<span class="note">検査値を入力してください</span>';
+ const cnt={danger:0,warn:0,info:0,ok:0}; secs.forEach(x=>x.items.forEach(i=>cnt[i.lvl]++));
+ $('counts').innerHTML=Object.keys(cnt).map(k=>`<span class="tag ${k}" style="padding:3px 10px">${LV[k]} ${cnt[k]}</span>`).join('');
+ $('results').innerHTML=secs.length?secs.map(x=>`<h3>${esc(x.title)}</h3>`+x.items.map(i=>
+  itemHtml(i)).join('')).join(''):'<p class="note">検査値・処方を入力すると検討事項が表示されます。</p>';
+ const urgent=ranked.filter(i=>i.lvl==='danger'||ACTIONS.includes(i.act)).length; $('mnavCnt').textContent=urgent; $('mnavCnt').hidden=!urgent;
+ $('ranked').innerHTML=ranked.length?ranked.map((i,n)=>`<div class="rk"><div class="no">${n+1}</div>${itemHtml(i,true)}</div>`).join(''):'<p class="note">現時点で対応が必要な項目はありません。</p>';
+ // report
+ const L=[]; const p=s.patient;
+ L.push(`【透析患者 内服薬レビュー】${p.label?' '+p.label:''}${p.date?' 検査日 '+p.date:''}`);
+ if(chips.length) L.push('検査: '+chips.map(c=>c.html.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim()+(c.st!=='ok'?'*':'')).join(' / '));
+ const meds=[]; MEDS.forEach(([,items])=>items.forEach(([id,n,b])=>{if(s.meds[id].on)meds.push(medName(n,b)+(s.meds[id].dose?` ${s.meds[id].dose}`:''))}));
+ if(meds.length) L.push('処方: '+meds.join('、'));
+ if(ranked.length){ L.push('■ 対応の優先順位'); ranked.forEach((i,n)=>{ L.push(`  ${n+1}. [${i.act}] ${i.text}`); if(i.plan) L.push(`     具体案: ${i.plan}`); (i.notes||[]).filter(x=>x.t!=='trade').forEach(x=>L.push(`     → ${x.s}`)); }); }
+ L.push('■ 領域別の確認事項');
+ secs.forEach(x=>{const its=x.items.filter(i=>i.lvl!=='ok'&&!ranked.includes(i)&&!i.superseded); if(!its.length)return; L.push('□ '+x.title); its.forEach(i=>{L.push(`  [${i.act}] ${i.text}`); if(i.plan) L.push(`     具体案: ${i.plan}`);})});
+ L.push('（*目標範囲外。本記載は判断支援ツールによる検討候補）');
+ $('report').value=L.join('\n');
+}
+
+// ---------- events ----------
+let tmr; const sched=()=>{clearTimeout(tmr);tmr=setTimeout(run,120)};
+$('formCol').addEventListener('input',e=>{
+ if(/^(l|lp)_(fe|tibc)$/.test(e.target.id)) syncTsat();
+ if(/^(l|lp)_(bun_pre|bun_post|hd_time|uf|wt_post)$/.test(e.target.id)||e.target.id==='p_dw') syncKtv();
+ if(e.target.id?.startsWith('t_')){const k=e.target.id.slice(2);const v=num(e.target.value);if(v!=null){T[k]=v;try{localStorage.setItem(T_KEY,JSON.stringify(T))}catch(_){}}}
+ sched();
+});
+$('formCol').addEventListener('change',e=>{if(/^(m|mds)_/.test(e.target.id||''))syncDoseInputs();sched()});
+$('btnResetT').onclick=()=>{T={...T_DEF};try{localStorage.removeItem(T_KEY)}catch(_){};buildT();run()};
+// 確認ダイアログ（confirm）は埋め込みブラウザで無効なことがあるため、2回押しで確定する
+let clearTimer=null;
+$('btnClear').onclick=()=>{
+ const b=$('btnClear');
+ if(!clearTimer){
+  b.textContent='もう一度押すと消去'; b.classList.add('danger-btn');
+  clearTimer=setTimeout(()=>{clearTimer=null;b.textContent='クリア';b.classList.remove('danger-btn')},3000);
+  return;
+ }
+ clearTimeout(clearTimer); clearTimer=null; b.textContent='クリア'; b.classList.remove('danger-btn');
+ setState({}); window.scrollTo(0,0);
+};
+$('btnPrint').onclick=()=>window.print();
+$('btnCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('report').value);$('copyMsg').textContent='コピーしました'}catch(e){$('report').select();document.execCommand('copy');$('copyMsg').textContent='コピーしました'}setTimeout(()=>$('copyMsg').textContent='',2000)};
+$('btnSave').onclick=()=>{
+ const s=getState(); const blob=new Blob([JSON.stringify(s,null,1)],{type:'application/json'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+ a.download=`hd_review_${(s.patient.label||'case').replace(/[\\/:*?"<>|\s]/g,'_')}_${s.patient.date||new Date().toISOString().slice(0,10)}.json`;
+ a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$('fileLoad').onchange=e=>{const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{setState(JSON.parse(r.result))}catch(err){alert('JSONを読み込めませんでした')}}; r.readAsText(f); e.target.value=''};
+$('btnSample').onclick=()=>setState({
+ patient:{label:'サンプル1',date:'2026-10-07',age:'72',dw:'54.5',dialca:'2.75',pthassay:'intact'},
+ flags:{dm:true,cvd:true,constip:true},
+ labs:{alb:{now:'3.4',prev:'3.6'},ca:{now:'9.3',prev:'9.0'},p:{now:'6.8',prev:'6.1'},pth:{now:'380',prev:'310'},alp:{now:'140'},mg:{now:'3.3'},
+  k:{now:'5.8',prev:'5.4'},bun_pre:{now:'68',prev:'72'},bun_post:{now:'22',prev:'24'},hd_time:{now:'4',prev:'4'},uf:{now:'2.6',prev:'2.8'},wt_post:{now:'54.6'},hb:{now:'9.6',prev:'10.2'},ferritin:{now:'62'},fe:{now:'45'},tibc:{now:'260'},zn:{now:'55'},crp:{now:'0.2'},
+  ga:{now:'23.1'},hba1c:{now:'6.2'},ldl:{now:'112'},ua:{now:'8.4'}},
+ meds:{caco3:{on:true,dose:'3g/日 分3（最大）'},alfacalcidol:{on:true,dose:'0.25µg/日'},ps_ca:{on:true,dose:'10g/日 分2'},rasi:{on:true,dose:'アジルサルタン 20mg'},
+  esa:{on:true,dose:'ネスプ 20µg 週1'},dpp4:{on:true,dose:'シタグリプチン 50mg'},mgo:{on:true,dose:'990mg/日'},allopurinol:{on:true,dose:'100mg/日'}}
+});
+
+// ---------- 貼り付けで取込（電子カルテ画面のテキスト） ----------
+// [検査項目ID, 帳票上の項目名（長いもの・特異的なものから評価）, 妥当な範囲]
+const OCR_MAP=[
+ ['hba1c',['ヘモグロビンA1c','HbA1c','HBA1C','HbAlc','HbAIc','A1c'],[3,20]],
+ ['ga',['グリコアルブミン','GA'],[5,60]],
+ ['nonhdl',['non-HDL-C','non-HDL','nonHDL','NonHDL'],[20,500]],
+ ['ldl',['LDLコレステロール','LDL-C','LDL-CHO','LDL'],[10,400]],
+ ['hdl',['HDLコレステロール','HDL-C','HDL'],[5,200]],
+ ['tcho',['総コレステロール','T-CHO','TC'],[50,500]],
+ ['uibc',['遊離鉄結合能','不飽和鉄結合能','UIBC'],[10,500]],
+ ['tibc',['総鉄結合能','TIBC'],[50,600]],
+ ['tsat',['トランスフェリン飽和度','TSAT','TfSat'],[1,100]],
+ ['ferritin',['フェリチン','Ferritin','FERRITIN'],[1,5000]],
+ ['fe',['血清鉄','Fe','FE','鉄'],[5,400]],
+ ['pth',['PTH-インタクト','PTHーインタクト','インタクトPTH','intact PTH','intact-PTH','iPTH','I-PTH','whole PTH','PTH','副甲状腺ホルモン'],[1,3000]],
+ ['alp',['アルカリホスファターゼ','ALP'],[10,3000]],
+ ['alb',['アルブミン','ALB','Alb'],[1,6]],
+ ['ca',['カルシウム','Ca','CA'],[4,16]],
+ ['p',['無機リン','無機P','リン','IP','iP','P'],[0.5,15]],
+ ['mg',['マグネシウム','Mg','MG'],[0.5,6]],
+ ['k',['カリウム','K'],[1.5,9]],
+ ['hb',['ヘモグロビン','血色素量','血色素','Hb','HGB','Hgb'],[3,20]],
+ ['zn',['亜鉛','Zn','ZN'],[10,300]],
+ ['crp',['CRP'],[0,50]],
+ ['glu',['グルコース','血糖','GLU','BS'],[30,800]],
+ ['ua',['尿酸','UA'],[0.5,20]],
+ ['bun',['尿素窒素','BUN','UN'],[5,250]],
+];
+const LAB_NAME=Object.fromEntries(LAB_GROUPS.flatMap(g=>g[1]).map(([id,n,u])=>[id,[n,u]]));
+let ocrFound=[], ocrDate=null, ocrWhole=false, pending=new Set();
+const isAscii=t=>/^[\x20-\x7e]+$/.test(t);
+function findAlias(line,alias){
+ if(!isAscii(alias)){
+  let i=line.indexOf(alias);
+  while(i>=0){
+   const prev=line[i-1]||'';
+   if(alias.length>2||!/[ァ-ヶー一-龠]/.test(prev)) return i;
+   i=line.indexOf(alias,i+1);
+  }
+  return -1;
+ }
+ const re=new RegExp('(^|[^A-Za-z])'+alias.replace(/[.*+?^${}()|[\]\\-]/g,'\\$&')+'(?![A-Za-z0-9])');
+ const m=re.exec(line); return m?m.index+m[1].length:-1;
+}
+// 項目名の後ろから値を取り出す（基準値の範囲「3.5-5.0」は除外）
+function pickNumber(rest,[lo,hi]){
+ const t=rest.replace(/(\d)[,，](\d{1,2})(?!\d)/g,'$1.$2').replace(/(?<=\d)[Oo](?=\d|\b)/g,'0').replace(/(?<=\d)[lI|](?=\d)/g,'1');
+ const re=/(\d+(?:\.\d+)?)/g; let m, first=null;
+ while((m=re.exec(t))){
+  const before=t.slice(Math.max(0,m.index-1),m.index), after=t.slice(m.index+m[0].length).trimStart();
+  if(/^[-~〜～—―−ー]\s*\d/.test(after)||/[-~〜～—―−ー]$/.test(before)) continue;
+  const v=parseFloat(m[1]); if(first==null) first=v;
+  if(v>=lo&&v<=hi) return {v,ok:true};
+ }
+ return first==null?null:{v:first,ok:false};
+}
+function parseOcr(text){
+ const found={}, list=[]; ocrDate=null; ocrWhole=false; pending=new Set();
+ // 日本語OCRは文字間にスペースが入りやすいので、非ASCII文字どうしの間の空白を詰める
+ const lines=text.normalize('NFKC').split(/\n/).map(l=>l.replace(/\s+/g,' ').replace(/(?<=[^\x00-\x7f]) (?=[^\x00-\x7f])/g,'').trim()).filter(Boolean);
+ for(const line of lines){
+  const dm=line.match(/(20\d{2})[\/.\-年](\d{1,2})[\/.\-月](\d{1,2})/); if(dm&&!ocrDate) ocrDate=`${dm[1]}-${dm[2].padStart(2,'0')}-${dm[3].padStart(2,'0')}`;
+  for(const [id,aliases,rng] of OCR_MAP){
+   if(id==='ca'&&/補正/.test(line)) continue;
+   if(id==='hb'&&/A[1lI]c/i.test(line)) continue;
+   if(id==='alb'&&/グリコ/.test(line)) continue;
+   if(id==='fe'&&/結合能/.test(line)) continue;
+   let hit=-1, al='';
+   for(const a of aliases){const i=findAlias(line,a); if(i>=0&&!/\d/.test(line.slice(0,i))){hit=i;al=a;break;}}
+   if(hit<0) continue;
+   const num=pickNumber(line.slice(hit+al.length),rng); if(!num){ if(/検査中|未|提出/.test(line)) pending.add(id); break; }
+   let key=id;
+   if(id==='bun') key=(/後|post/i.test(line)||found.bun_pre)?'bun_post':'bun_pre';
+   if(id==='pth'&&/whole/i.test(line)) ocrWhole=true;
+   const prevI=list.findIndex(x=>x.id===key);
+   if(prevI<0) list.push({id:key,v:num.v,ok:num.ok,src:line});
+   else if(!list[prevI].ok&&num.ok) list[prevI]={id:key,v:num.v,ok:true,src:line};
+   found[key]=1;
+   break;
+  }
+ }
+ const g=k=>list.find(x=>x.id===k);
+ if(!g('tibc')&&g('fe')&&g('uibc')) list.push({id:'tibc',v:Math.round((g('fe').v+g('uibc').v)*10)/10,ok:true,src:`鉄 ${g('fe').v} ＋ UIBC ${g('uibc').v} から計算`});
+ if(!g('nonhdl')&&g('tcho')&&g('hdl')) list.push({id:'nonhdl',v:Math.round(g('tcho').v-g('hdl').v),ok:true,src:`総コレステロール ${g('tcho').v} − HDL ${g('hdl').v} から計算`});
+ return list.filter(x=>LAB_NAME[x.id]);
+}
+function renderOcr(){
+ const missing=LAB_GROUPS.flatMap(g=>g[1]).map(x=>x[0]).filter(id=>!['ktv','hd_time','uf','wt_post'].includes(id)&&!ocrFound.some(f=>f.id===id));
+ $('ocrResult').innerHTML=ocrFound.length?`<table class="ocr"><thead><tr><th>反映</th><th>項目</th><th>読取値</th><th>読み取った行</th></tr></thead><tbody>${
+  ocrFound.map((f,i)=>`<tr><td><input type="checkbox" data-i="${i}" ${f.ok?'checked':''}></td><td>${esc(LAB_NAME[f.id]?.[0]||f.id)}<div class="note">${esc(LAB_NAME[f.id]?.[1]||'')}</div></td><td><input type="number" step="any" data-v="${i}" value="${f.v}">${f.ok?'':'<div class="bad">範囲外の値：要確認</div>'}</td><td class="src">${esc(f.src)}</td></tr>`).join('')
+ }</tbody></table><p class="note">${pending.size?`検査中（値なし）：${esc([...pending].map(id=>LAB_NAME[id]?.[0]||id).join('、'))}<br>`:''}読み取れなかった項目：${esc(missing.filter(id=>!pending.has(id)).map(id=>LAB_NAME[id]?.[0]).filter(Boolean).join('、'))}</p>`:'<p class="note">検査項目を読み取れませんでした。電子カルテの検査結果（項目名と値を含む行）をそのままコピーして貼り付けてください。</p>';
+ $('ocrExtra').innerHTML=(ocrDate?`検査日の候補：<b>${ocrDate}</b> <label><input type="checkbox" id="ocrUseDate" checked>反映</label>`:'')+(ocrWhole?'<br>whole PTH の記載あり → PTH測定法を whole に設定します':'');
+ $('ocrApply').disabled=!ocrFound.length;
+}
+// テキスト貼り付けによる取込（電子カルテ画面のコピー）
+function parseTextImport(){
+ const t=$('ocrPaste').value; ocrFound=parseOcr(t); $('ocrRaw').textContent=t;
+ $('ocrStatus').textContent=t.trim()?`読み取り完了：${ocrFound.length}項目`:'貼り付けを待っています';
+ renderOcr();
+}
+function openTextImport(text){
+ $('ocrModal').hidden=false;
+ $('ocrPaste').value=text||''; parseTextImport(); if(!text) $('ocrPaste').focus();
+}
+$('btnPasteImport').onclick=()=>openTextImport('');
+$('ocrPaste').addEventListener('input',parseTextImport);
+// ページ上で Ctrl+V：文字なら貼り付け取込（入力欄での貼り付けは通常どおり）
+document.addEventListener('paste',e=>{
+ if(e.target.closest&&e.target.closest('input,textarea,select')) return;
+ const t=e.clipboardData?.getData('text')||''; if(/\d/.test(t)){ e.preventDefault(); openTextImport(t); }
+});
+$('ocrCancel').onclick=()=>{$('ocrModal').hidden=true;};
+$('ocrModal').addEventListener('keydown',e=>{if(e.key==='Escape')$('ocrModal').hidden=true;});
+$('ocrApply').onclick=()=>{
+ const pre=$('ocrTarget').value;
+ document.querySelectorAll('#ocrResult input[type=checkbox][data-i]').forEach(cb=>{
+  if(!cb.checked) return; const i=+cb.dataset.i, v=document.querySelector(`#ocrResult input[data-v="${i}"]`).value, el=$(pre+ocrFound[i].id);
+  if(el&&!el.readOnly) el.value=v;
+ });
+ if(ocrDate&&pre==='l_'&&$('ocrUseDate')?.checked) $('p_date').value=ocrDate;
+ if(ocrWhole) $('p_pthassay').value='whole';
+ syncTsat(); syncKtv(); run(); $('ocrModal').hidden=true;
+};
+document.querySelectorAll('.mnav [data-go]').forEach(b=>b.onclick=()=>$(b.dataset.go).scrollIntoView({behavior:'smooth',block:'start'}));
+// iPhone で小数点つきの数値キーボードを出す
+document.querySelectorAll('input[type=number]').forEach(i=>i.inputMode='decimal');
+// オフライン対応（https で公開したときのみ有効。ローカルファイルでは動かない）
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(()=>{});
+run();
+</script>
+</body>
+</html>
