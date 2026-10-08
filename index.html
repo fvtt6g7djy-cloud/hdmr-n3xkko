@@ -108,6 +108,12 @@ table.ocr input[type=number]{width:90px}
 table.ocr .src{color:var(--muted);font-size:11.5px;word-break:break-all}
 table.ocr .bad{color:var(--danger);font-size:11.5px}
 .ocr-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+.storebar{margin-top:8px;padding:8px 10px;border-radius:8px;background:var(--info-bg);color:var(--info);font-size:13px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.storebar[hidden]{display:none}
+.storebtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
+#storeMgr{width:100%}
+#storeList .srow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--line);font-size:13px}
+#storeList .srow button{font-size:12px;padding:4px 8px}
 .mnav{display:none}
 @media (max-width:980px){
  body{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
@@ -147,7 +153,7 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
   <div class="card">
     <h2>患者情報</h2>
     <div class="grid2">
-      <label class="f">識別ラベル（通し番号等・カルテIDは入力しない）<input type="text" id="p_label"></label>
+      <label class="f">識別ラベル（通し番号等・カルテIDは入力しない）<input type="text" id="p_label" list="savedLabels" autocomplete="off"></label>
       <label class="f">検査日<input type="text" id="p_date" placeholder="2026-10-07"></label>
       <label class="f">年齢<input type="number" id="p_age"></label>
       <label class="f">DW (kg)<input type="number" id="p_dw" step="any"></label>
@@ -158,6 +164,19 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
     </div>
     <div class="flags" id="flags"></div>
     <p class="note">採血は週初め（中2日）透析前値を想定しています。</p>
+    <datalist id="savedLabels"></datalist>
+    <div id="storeBar" class="storebar" hidden></div>
+    <div class="storebtns">
+     <button type="button" id="btnStoreSave">この患者を端末に保存</button>
+     <details id="storeMgr"><summary class="note">保存済みの患者（<span id="storeCount">0</span>）</summary>
+      <div id="storeList"></div>
+      <div class="storebtns">
+       <button type="button" id="btnStoreExport">全患者をバックアップ保存</button>
+       <label class="filebtn">バックアップから復元<input type="file" id="storeImport" accept=".json" hidden></label>
+      </div>
+      <p class="note">保存先はこの端末（ブラウザ）の中だけで、外部には送信されません。機種変更やブラウザのデータ削除に備えて、ときどきバックアップしてください。iPhoneでは「ホーム画面に追加」したアプリから使うと保存が保たれます。</p>
+     </details>
+    </div>
   </div>
 
   <div class="card">
@@ -1044,7 +1063,7 @@ $('btnClear').onclick=()=>{
   return;
  }
  clearTimeout(clearTimer); clearTimer=null; b.textContent='クリア'; b.classList.remove('danger-btn');
- setState({}); window.scrollTo(0,0);
+ setState({}); storeBarUpdate(); window.scrollTo(0,0);
 };
 $('btnPrint').onclick=()=>window.print();
 $('btnCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('report').value);$('copyMsg').textContent='コピーしました'}catch(e){$('report').select();document.execCommand('copy');$('copyMsg').textContent='コピーしました'}setTimeout(()=>$('copyMsg').textContent='',2000)};
@@ -1188,6 +1207,70 @@ $('ocrApply').onclick=()=>{
  if(ocrWhole) $('p_pthassay').value='whole';
  syncTsat(); syncKtv(); run(); $('ocrModal').hidden=true;
 };
+
+// ---------- 患者ごとの保存（端末内 localStorage） ----------
+// 識別ラベルごとに：患者情報・チェック項目・処方（用量）・前回の検査値（今回欄の値）を保存。
+// 読み込むと処方などを復元し、保存時の検査値は「前回」欄に入る。
+const STORE_KEY='hdreview_patients_v1';
+const storeGet=()=>{try{return JSON.parse(localStorage.getItem(STORE_KEY)||'{}')}catch(e){return {}}};
+const storeSet=o=>{try{localStorage.setItem(STORE_KEY,JSON.stringify(o));return true}catch(e){alert('この端末に保存できませんでした（プライベートブラウズ等では保存できません）');return false}};
+const today=()=>new Date().toISOString().slice(0,10);
+function storeRefresh(){
+ const db=storeGet(), labels=Object.keys(db).sort((a,b)=>(db[b].savedAt||'').localeCompare(db[a].savedAt||''));
+ $('savedLabels').innerHTML=labels.map(l=>`<option value="${esc(l)}">`).join('');
+ $('storeCount').textContent=labels.length;
+ $('storeList').innerHTML=labels.length?labels.map(l=>{const r=db[l], nm=MEDS.flatMap(g=>g[1]).filter(m=>r.meds?.[m[0]]?.on).length;
+  return `<div class="srow"><div><b>${esc(l)}</b><div class="note">検査日 ${esc(r.date||'未入力')}・処方 ${nm}剤・保存 ${esc(r.savedAt||'')}</div></div><div><button type="button" data-load="${esc(l)}">読込</button> <button type="button" data-del="${esc(l)}">削除</button></div></div>`}).join(''):'<p class="note">まだ保存された患者はいません。</p>';
+ storeBarUpdate();
+}
+function storeBarUpdate(){
+ const l=$('p_label').value.trim(), r=l&&storeGet()[l];
+ if(!r){$('storeBar').hidden=true;return;}
+ $('storeBar').hidden=false;
+ $('storeBar').innerHTML=`「${esc(l)}」の保存データがあります（検査日 ${esc(r.date||'未入力')}、保存 ${esc(r.savedAt)}）<button type="button" class="primary" data-load="${esc(l)}">処方を読み込む（前回値も転記）</button>`;
+}
+function storeSave(){
+ const st=getState(), l=st.patient.label.trim();
+ if(!l){alert('識別ラベル（通し番号など）を入力してください。カルテIDは入力しないでください。');$('p_label').focus();return;}
+ const db=storeGet();
+ if(db[l]&&!confirmTwice('save',`「${l}」を上書き保存するにはもう一度押す`,$('btnStoreSave'))) return;
+ const labs={}; Object.entries(st.labs).forEach(([k,v])=>{if(v.now!=='') labs[k]=v.now});
+ db[l]={savedAt:today(),date:st.patient.date,patient:{age:st.patient.age,dw:st.patient.dw,dialca:st.patient.dialca,pthassay:st.patient.pthassay},flags:st.flags,meds:st.meds,labs};
+ if(storeSet(db)){storeRefresh(); flash('btnStoreSave','保存しました');}
+}
+function storeLoad(l){
+ const r=storeGet()[l]; if(!r) return;
+ const labs={}; Object.entries(r.labs||{}).forEach(([k,v])=>labs[k]={now:'',prev:v});
+ setState({patient:{label:l,date:'',...r.patient},flags:r.flags,meds:r.meds,labs});
+ $('storeBar').hidden=false;
+ $('storeBar').innerHTML=`「${esc(l)}」の処方を読み込み、前回（${esc(r.date||r.savedAt)}）の検査値を「前回」欄に入れました。今回の検査値を入力してください。`;
+}
+// 2回押しで確定（confirm ダイアログは埋め込みブラウザで無効なことがあるため）
+const twice={};
+function confirmTwice(id,msg,b){
+ if(twice[id]){clearTimeout(twice[id].t);b.textContent=twice[id].orig;delete twice[id];return true;}
+ twice[id]={orig:b.textContent,t:setTimeout(()=>{b.textContent=twice[id].orig;delete twice[id];},3000)};
+ b.textContent=msg; return false;
+}
+function flash(id,msg){const b=$(id),o=b.textContent;b.textContent=msg;setTimeout(()=>b.textContent=o,1500);}
+$('btnStoreSave').onclick=storeSave;
+$('p_label').addEventListener('input',storeBarUpdate);
+$('p_label').addEventListener('change',storeBarUpdate);
+document.addEventListener('click',e=>{
+ const ld=e.target.closest('[data-load]'); if(ld){storeLoad(ld.dataset.load);return;}
+ const dl=e.target.closest('[data-del]'); if(dl){const l=dl.dataset.del; if(!confirmTwice('del:'+l,'もう一度押すと削除',dl)) return; const db=storeGet(); delete db[l]; storeSet(db); storeRefresh();}
+});
+$('btnStoreExport').onclick=()=>{
+ const blob=new Blob([JSON.stringify({type:'hdreview_patients',exportedAt:today(),patients:storeGet()},null,1)],{type:'application/json'});
+ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`hdreview_backup_${today()}.json`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$('storeImport').onchange=e=>{
+ const f=e.target.files[0]; e.target.value=''; if(!f) return;
+ const rd=new FileReader(); rd.onload=()=>{try{const o=JSON.parse(rd.result); if(o.type!=='hdreview_patients'||!o.patients) throw 0;
+  const db={...storeGet(),...o.patients}; if(storeSet(db)){storeRefresh(); alert(`${Object.keys(o.patients).length}人分を復元しました（同じラベルは上書き）`);} }catch(err){alert('バックアップファイルを読み込めませんでした');}};
+ rd.readAsText(f);
+};
+storeRefresh();
 document.querySelectorAll('.mnav [data-go]').forEach(b=>b.onclick=()=>$(b.dataset.go).scrollIntoView({behavior:'smooth',block:'start'}));
 // iPhone で小数点つきの数値キーボードを出す
 document.querySelectorAll('input[type=number]').forEach(i=>i.inputMode='decimal');

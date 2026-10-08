@@ -1,6 +1,6 @@
 // オフライン対応：アプリ本体をキャッシュし、通信できないときはキャッシュから表示する。
 // index.html を更新したら VERSION を上げる（古いキャッシュが削除され、次回起動時に新版へ切り替わる）。
-const VERSION = 'v1-2026-10-08';
+const VERSION = 'v2-2026-10-08';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
