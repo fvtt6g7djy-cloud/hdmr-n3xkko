@@ -180,6 +180,12 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
   </div>
 
   <div class="card">
+    <h2>症状</h2>
+    <div class="flags" id="syms"></div>
+    <p class="note">チェックした症状について、検査値・処方から原因候補を挙げ、処方案を提示します。</p>
+  </div>
+
+  <div class="card">
     <h2>検査値</h2>
     <table class="labs" id="labTable">
       <thead><tr><th>項目</th><th>今回</th><th>前回</th><th></th></tr></thead>
@@ -267,7 +273,8 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
 
 <script>
 "use strict";
-const FLAGS=[['dm','糖尿病'],['cvd','動脈硬化性疾患・心血管疾患既往'],['hf','心不全'],['malnut','低栄養'],['fx_risk','骨折リスク高（女性・低BMI・骨代謝マーカー上昇など）'],['ptg','副甲状腺腫大（エコー）'],['tx','腎移植の可能性'],['gout','痛風既往'],['malig','活動性悪性腫瘍'],['pdr','増殖糖尿病網膜症/黄斑浮腫'],['thromb','血栓塞栓症既往'],['constip','便秘傾向'],['diarrhea','下痢傾向'],['urine','残腎尿量あり']];
+const SYMS=[['itch','かゆみ'],['constip','便秘'],['insomnia','不眠'],['rls','むずむず脚（RLS）'],['cramp','こむら返り'],['idh','透析中の血圧低下'],['gerd','胸やけ・胃もたれ'],['pain','痛み・しびれ']];
+const FLAGS=[['dm','糖尿病'],['cvd','動脈硬化性疾患・心血管疾患既往'],['hf','心不全'],['malnut','低栄養'],['fx_risk','骨折リスク高（女性・低BMI・骨代謝マーカー上昇など）'],['ptg','副甲状腺腫大（エコー）'],['tx','腎移植の可能性'],['gout','痛風既往'],['malig','活動性悪性腫瘍'],['pdr','増殖糖尿病網膜症/黄斑浮腫'],['thromb','血栓塞栓症既往'],['diarrhea','下痢傾向'],['urine','残腎尿量あり']];
 const LAB_GROUPS=[
  ['CKD-MBD',[['alb','Alb','g/dL'],['ca','Ca（実測）','mg/dL'],['p','P','mg/dL'],['pth','PTH','pg/mL'],['alp','ALP (IFCC)','U/L'],['mg','Mg','mg/dL']]],
  ['カリウム',[['k','K','mEq/L']]],
@@ -286,6 +293,10 @@ const MEDS=[
  ['尿酸',[['allopurinol','アロプリノール','ザイロリック'],['febuxostat','フェブキソスタット','フェブリク'],['topiroxostat','トピロキソスタット','トピロリック、ウリアデック']]],
  ['糖尿病',[['dpp4','DPP-4阻害薬','トラゼンタ、テネリア、ジャヌビア等'],['insulin','インスリン',''],['glp1','GLP-1受容体作動薬','トルリシティ、オゼンピック、リベルサス等'],['agi','α-GI','ベイスン、セイブル等'],['glinide','グリニド薬','グルファスト、シュアポスト、スターシス等'],['su','SU薬','アマリール、グリミクロン等'],['metformin','メトホルミン','メトグルコ'],['sglt2','SGLT2阻害薬','フォシーガ、ジャディアンス等'],['tzd','チアゾリジン薬（ピオグリタゾン）','アクトス'],['imeglimin','イメグリミン','ツイミーグ']]],
  ['脂質',[['statin','スタチン','リピトール、クレストール、リバロ等'],['ezetimibe','エゼチミブ','ゼチーア'],['fibrate','ベザフィブラート／フェノフィブラート','ベザトール、リピディル、トライコア']]],
+ ['症状の治療薬',[['nalfurafine','ナルフラフィン（そう痒）','レミッチ、ノピコール'],['difelikefalin','ジフェリケファリン注（そう痒）','コルスバ'],['antihist','抗ヒスタミン薬（第2世代）','アレグラ、クラリチン等'],
+   ['lubiprostone','ルビプロストン','アミティーザ'],['linaclotide','リナクロチド','リンゼス'],['elobixibat','エロビキシバット','グーフィス'],['peg','ポリエチレングリコール','モビコール'],['stim','刺激性下剤（センノシド・ピコスルファート）','プルゼニド、ラキソベロン'],
+   ['sleep','オレキシン受容体拮抗薬／ラメルテオン','デエビゴ、ベルソムラ、ロゼレム'],['bzd','ベンゾジアゼピン系・Z薬','マイスリー、レンドルミン等'],['rotigotine','ロチゴチン貼付剤','ニュープロパッチ'],['pramipexole','プラミペキソール','ビ・シフロール'],
+   ['shakuyaku','芍薬甘草湯','ツムラ芍薬甘草湯（68）等'],['carnitine','L-カルニチン','エルカルチンFF'],['droxidopa','ドロキシドパ','ドプス'],['amezinium','アメジニウム','リズミック'],['apap','アセトアミノフェン','カロナール']]],
  ['その他・要注意薬',[['zinc','酢酸亜鉛','ノベルジン'],['mgo','酸化マグネシウム','マグミット'],['al','アルミニウム含有製剤（スクラルファート等）','アルサルミン等'],['nsaids','NSAIDs','ロキソニン、セレコックス等'],['h2ra','H2受容体拮抗薬','ガスター等'],['ppi','PPI','ネキシウム、タケプロン等'],['gaba','プレガバリン／ミロガバリン','リリカ、タリージェ'],['doac','DOAC','プラザキサ、イグザレルト、エリキュース、リクシアナ'],['clopidogrel','クロピドグレル','プラビックス'],['digoxin','ジゴキシン','ジゴシン'],['acv','アシクロビル／バラシクロビル','ゾビラックス、バルトレックス']]]
 ];
 const HIF_IDS=['dap','vad','ena','mol','rox'];
@@ -333,6 +344,15 @@ const DOSES={
  zinc:['25mg/日','50mg/日','75mg/日','100mg/日'],
  mgo:['330mg/日','660mg/日','990mg/日','1320mg/日'],
  nsaids:['頓用','定期内服'],
+ nalfurafine:['2.5µg/日','5µg/日*'],difelikefalin:['0.5µg/kg 週3回 透析終了時*'],
+ antihist:['フェキソフェナジン 60mg/日','フェキソフェナジン 60mg×2/日','ロラタジン 10mg 隔日','ロラタジン 10mg/日','ビラスチン 20mg/日'],
+ lubiprostone:['24µg/日','24µg×2/日*'],linaclotide:['0.25mg/日','0.5mg/日*'],elobixibat:['5mg/日','10mg/日','15mg/日*'],peg:['1包/日','2包/日','4包/日','6包/日*'],
+ stim:['センノシド 12mg 頓用','センノシド 24mg 頓用','ピコスルファート 10滴 頓用','ピコスルファート 15滴 頓用'],
+ sleep:['レンボレキサント 2.5mg','レンボレキサント 5mg','レンボレキサント 10mg*','スボレキサント 15mg','スボレキサント 20mg*','ラメルテオン 8mg*'],
+ bzd:['ゾルピデム 5mg','ゾルピデム 10mg','ブロチゾラム 0.25mg','エスゾピクロン 1mg','エスゾピクロン 2mg'],
+ rotigotine:['2.25mg/日','4.5mg/日','6.75mg/日*'],pramipexole:['0.125mg 就寝前','0.25mg 就寝前','0.5mg 就寝前'],
+ shakuyaku:['2.5g 頓用','2.5g×2/日','7.5g/日 分3'],carnitine:['静注 10mg/kg 透析後','静注 20mg/kg 透析後','内服'],
+ droxidopa:['200mg 透析前','400mg 透析前*'],amezinium:['10mg 透析開始時*'],apap:['300mg 頓用','500mg 頓用','1500mg/日 分3','2000mg/日 分4'],
  h2ra:['ファモチジン 10mg/日*','ファモチジン 20mg 週3回 HD後*','ファモチジン 20mg/日!','ファモチジン 40mg/日!'],
  ppi:['エソメプラゾール 10mg','エソメプラゾール 20mg','ランソプラゾール 15mg','ランソプラゾール 30mg'],
  gaba:['プレガバリン 25mg/日','プレガバリン 50mg/日','プレガバリン 75mg/日*','プレガバリン 150mg/日!','プレガバリン 300mg/日!','ミロガバリン 2.5mg/日','ミロガバリン 5mg/日','ミロガバリン 7.5mg/日*','ミロガバリン 10mg/日!','ミロガバリン 20mg/日!'],
@@ -409,6 +429,23 @@ const EFFECTS={
  mgo:{fx:[['Mg','↑'],['排便','↑']],use:'',caution:'高Mg血症（徐脈・筋力低下・意識障害）。HIF-PH阻害薬との同時服用を避ける'},
  al:{fx:[['P','↓']],use:'',caution:'【透析患者禁忌】アルミニウム蓄積による脳症・骨症'},
  nsaids:{fx:[['K','↑'],['残腎機能','↓']],use:'',caution:'消化管出血・残腎機能低下'},
+ nalfurafine:{fx:[['かゆみ','↓']],use:'1日1回2.5µg 夕食後または就寝前（最大5µg）',caution:'不眠・眠気・便秘、肝機能障害。κオピオイド受容体作動薬'},
+ difelikefalin:{fx:[['かゆみ','↓']],use:'1回0.5µg/kg（DW）を週3回、透析終了時に透析回路の静脈側から注入',caution:'眠気・めまい。ナルフラフィンとの併用は避ける'},
+ antihist:{fx:[['かゆみ','↓']],use:'',caution:'眠気。腎排泄型は透析患者で減量（フェキソフェナジンは60mg 1日1回、ロラタジンは10mg 隔日が目安）'},
+ lubiprostone:{fx:[['排便','↑']],use:'1回24µg。中等度以上の腎機能障害では1日1回から（最大1日2回）',caution:'悪心（食後服用で軽減）、下痢'},
+ linaclotide:{fx:[['排便','↑']],use:'1日1回0.5mg 食前（症状で0.25mgに減量）',caution:'下痢。腎機能による調節不要'},
+ elobixibat:{fx:[['排便','↑']],use:'1日1回10mg 食前（最大15mg）',caution:'腹痛・下痢。胆汁酸トランスポーター阻害'},
+ peg:{fx:[['排便','↑']],use:'1日1回2包から（最大6包）、水に溶解',caution:'1包にNa・Kを少量含む。水分量（溶解液）に注意'},
+ stim:{fx:[['排便','↑']],use:'頓用・短期間',caution:'連用で耐性・腹痛。定期使用は他剤を優先'},
+ sleep:{fx:[['睡眠','↑']],use:'就寝直前',caution:'腎機能による調節不要。オレキシン受容体拮抗薬はCYP3A阻害薬（クラリスロマイシン等）と併用注意'},
+ bzd:{fx:[['睡眠','↑']],use:'就寝前',caution:'転倒・せん妄・依存。高齢の透析患者では漸減して他剤への変更を検討'},
+ rotigotine:{fx:[['RLS症状','↓']],use:'1日1回貼付。2.25mgから、1週以上あけて2.25mgずつ（最大6.75mg）',caution:'肝代謝で腎機能による調節不要。適用部位反応、症状促進（augmentation）、突発的睡眠'},
+ pramipexole:{fx:[['RLS症状','↓']],use:'就寝2〜3時間前',caution:'腎排泄型：透析患者は少量（0.125mg）から慎重に。症状促進（augmentation）、突発的睡眠'},
+ shakuyaku:{fx:[['こむら返り','↓']],use:'こむら返り時、または透析開始時に頓用',caution:'甘草を含む：連用で偽アルドステロン症（低K・浮腫・高血圧）'},
+ carnitine:{fx:[['カルニチン','↑']],use:'透析患者は透析終了時に静注（10〜20mg/kg）',caution:'保険適用はカルニチン欠乏症。血中カルニチンで確認'},
+ droxidopa:{fx:[['血圧','↑']],use:'透析開始30〜60分前に200〜400mg',caution:'保険適用：透析施行時のめまい・ふらつき・立ちくらみ等の改善。閉塞隅角緑内障では禁忌'},
+ amezinium:{fx:[['血圧','↑']],use:'透析開始時に10mg',caution:'保険適用：透析施行時の血圧低下の改善。高血圧・甲状腺機能亢進症・閉塞隅角緑内障・残尿を伴う前立腺肥大では禁忌'},
+ apap:{fx:[['痛み','↓']],use:'1回300〜500mg 頓用（1日1500mg程度まで）',caution:'肝障害。NSAIDsより透析患者に適する'},
  h2ra:{fx:[['胃酸','↓']],use:'',caution:'腎排泄で蓄積 → 意識障害・血球減少。減量が必要'},
  ppi:{fx:[['胃酸','↓'],['Mg','↓']],use:'',caution:'低Mg血症。炭酸Caのリン吸着効果を弱める可能性'},
  gaba:{fx:[['神経障害性疼痛','↓']],use:'低用量（透析後に補充）',caution:'蓄積によるめまい・傾眠・意識障害'},
@@ -418,6 +455,10 @@ const EFFECTS={
 };
 // 効能・効果（要約）。保険請求上は最新の添付文書・留意事項通知を確認すること
 const INS={
+ nalfurafine:'血液透析患者のそう痒症の改善（既存治療で効果不十分な場合に限る）',difelikefalin:'血液透析患者におけるそう痒症の改善（既存治療で効果不十分な場合に限る）',
+ lubiprostone:'慢性便秘症（器質的疾患による便秘を除く）',linaclotide:'便秘型過敏性腸症候群、慢性便秘症',elobixibat:'慢性便秘症（器質的疾患による便秘を除く）',peg:'慢性便秘症（器質的疾患による便秘を除く）',
+ rotigotine:'中等度から高度の特発性レストレスレッグス症候群、パーキンソン病',pramipexole:'中等度から高度の特発性レストレスレッグス症候群、パーキンソン病',
+ carnitine:'カルニチン欠乏症',droxidopa:'血液透析患者における透析施行時のめまい・ふらつき・立ちくらみ、倦怠感、脱力感の改善 等',amezinium:'透析施行時の血圧低下の改善、本態性・起立性低血圧',
  caco3:'CKD（保存期・透析中）における高リン血症',lanthanum:'慢性腎臓病患者における高リン血症の改善',sevelamer:'透析中の慢性腎臓病患者における高リン血症の改善（保存期は適応外）',
  bixalomer:'慢性腎臓病患者における高リン血症の改善',fecit:'慢性腎臓病患者における高リン血症の改善（別用量で鉄欠乏性貧血）',sfo:'透析中の慢性腎臓病患者における高リン血症の改善',
  tenapanor:'透析中の慢性腎臓病患者における高リン血症の改善（2024年2月発売）',
@@ -465,7 +506,8 @@ const BRAND=[
  ['アロプリノール','ザイロリック'],['フェブキソスタット','フェブリク'],['トピロキソスタット','トピロリック、ウリアデック'],
  ['DOAC','プラザキサ、イグザレルト、エリキュース、リクシアナ'],['ワルファリン','ワーファリン'],['アシクロビル','ゾビラックス',null,/^脳症/],['バラシクロビル','バルトレックス'],
  ['プレガバリン','リリカ'],['ミロガバリン','タリージェ'],['H2受容体拮抗薬','ガスター等'],['PPI','ネキシウム、タケプロン等'],['NSAIDs','ロキソニン、セレコックス等'],['アセトアミノフェン','カロナール'],
- ['ジゴキシン','ジゴシン'],['スクラルファート','アルサルミン'],['パチロマー','ビルタサ'],['ダプロデュスタット','ダーブロック'],['エナロデュスタット','エナロイ'],['モリデュスタット','マスーレッド'],
+ ['ジゴキシン','ジゴシン'],['スクラルファート','アルサルミン'],['ナルフラフィン','レミッチ、ノピコール'],['ジフェリケファリン','コルスバ'],['フェキソフェナジン','アレグラ'],['ロラタジン','クラリチン'],['ビラスチン','ビラノア'],['ヘパリン類似物質','ヒルドイド'],
+ ['レンボレキサント','デエビゴ'],['スボレキサント','ベルソムラ'],['ラメルテオン','ロゼレム'],['ゾルピデム','マイスリー'],['ロチゴチン','ニュープロパッチ'],['プラミペキソール','ビ・シフロール'],['ガバペンチン エナカルビル','レグナイト'],['ドロキシドパ','ドプス'],['アメジニウム','リズミック'],['L-カルニチン','エルカルチンFF'],['ランソプラゾール','タケプロン'],['エソメプラゾール','ネキシウム'],['ボノプラザン','タケキャブ'],['センノシド','プルゼニド'],['ピコスルファート','ラキソベロン'],['パチロマー','ビルタサ'],['ダプロデュスタット','ダーブロック'],['エナロデュスタット','エナロイ'],['モリデュスタット','マスーレッド'],
  ['カルシミメティクス','レグパラ、オルケディア、パーサビブ注、ウパシタ注','cm'],['ピオグリタゾン','アクトス'],['イメグリミン','ツイミーグ'],['クロピドグレル','プラビックス'],['チアゾリジン薬','アクトス'],['沈降炭酸Ca','カルタン','caco3']
 ];
 const BRAND_RE=new RegExp([...BRAND].sort((a,b)=>b[0].length-a[0].length).map(x=>x[0].replace(/[.*+?^${}()|[\]\\-]/g,'\\$&')).join('|'),'g');
@@ -514,6 +556,7 @@ const r1=x=>x==null?'':(Math.round(x*10)/10).toString();
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 // ---------- build form ----------
+$('syms').innerHTML=SYMS.map(([id,n])=>`<label><input type="checkbox" id="sy_${id}">${n}</label>`).join('');
 $('flags').innerHTML=FLAGS.map(([id,n])=>`<label><input type="checkbox" id="f_${id}">${n}</label>`).join('');
 $('labTable').querySelector('tbody').innerHTML=LAB_GROUPS.map(([g,labs])=>
  `<tr class="g"><td colspan="4">${g}</td></tr>`+labs.map(([id,n,u])=>
@@ -549,6 +592,7 @@ function getState(){
  const s={patient:{},flags:{},labs:{},meds:{}};
  ['label','date','age','dw','dialca','pthassay'].forEach(k=>s.patient[k]=$('p_'+k).value);
  FLAGS.forEach(([id])=>s.flags[id]=$('f_'+id).checked);
+ s.sym={}; SYMS.forEach(([id])=>s.sym[id]=$('sy_'+id).checked);
  LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>s.labs[id]={now:$('l_'+id).value,prev:$('lp_'+id).value}));
  MEDS.forEach(([,items])=>items.forEach(([id])=>s.meds[id]={on:$('m_'+id).checked,dose:getDose(id)}));
  return s;
@@ -556,6 +600,7 @@ function getState(){
 function setState(s){
  ['label','date','age','dw','dialca','pthassay'].forEach(k=>{$('p_'+k).value=s.patient?.[k]??(k==='pthassay'?'intact':'')});
  FLAGS.forEach(([id])=>$('f_'+id).checked=!!s.flags?.[id]);
+ SYMS.forEach(([id])=>$('sy_'+id).checked=!!(s.sym?.[id]||(id==='constip'&&s.flags?.constip)));
  LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>{$('l_'+id).value=s.labs?.[id]?.now??'';$('lp_'+id).value=s.labs?.[id]?.prev??''}));
  MEDS.forEach(([,items])=>items.forEach(([id])=>{$('m_'+id).checked=!!s.meds?.[id]?.on;setDose(id,s.meds?.[id]?.dose??'')}));
  syncDoseInputs();syncTsat();syncKtv();run();
@@ -616,7 +661,7 @@ function derive(s){
 // ---------- rule engine ----------
 function evaluate(s,d){
  const has=id=>id==='hifphi'?HIF_IDS.some(h=>!!s.meds[h]?.on):!!s.meds[id]?.on, any=ids=>ids.filter(has);
- const F=s.flags, secs=[]; let cur;
+ const SY=s.sym||{}, F={...s.flags,constip:!!(s.flags.constip||SY.constip)}, secs=[]; let cur;
  const age=num(s.patient.age), elderly=age!=null&&age>=75;
  let dom='Misc';
  const sec=(t,dm)=>{cur={title:t,items:[]};secs.push(cur);dom=dm};
@@ -832,6 +877,73 @@ function evaluate(s,d){
  }));
  if(has('mra')&&!F.urine&&/スピロノラクトン/.test(s.meds.mra.dose||'')) add('danger','中止','スピロノラクトン：無尿の患者は禁忌','残腎尿量がない場合は投与しない（添付文書）。','LABEL');
 
+ // ===== 症状 =====
+ sec('症状への対応','Sym');
+ const dw=num(s.patient.dw);
+ if(SY.itch){
+  const c=[]; if(Phi) c.push(`高P（${P}）`); if(PTHhi) c.push(`PTH高値（${Math.round(PTH)}）`); if(Cahi) c.push(`高Ca（${r1(Ca)}）`); if(d.ktv!=null&&d.ktv<T.KtV_lo) c.push(`透析量不足（Kt/V ${d.ktv}）`); if(ironLowAny) c.push('鉄欠乏');
+  add('warn','確認','かゆみ：原因の是正とスキンケアを先に',(c.length?`該当：${c.join('、')}。これらの是正でかゆみの改善が期待できる。`:'')+'皮膚乾燥（ドライスキン）が多い。熱い入浴・掻破を避け、爪を短く。','',
+   {plan:'ヘパリン類似物質ローションを1日2回（入浴後）全身に塗布'+(c.length?`。並行して${c.join('・')}を是正`:'')});
+  const k=any(['nalfurafine','difelikefalin']);
+  if(!has('antihist')&&!k.length) add('info','追加','抗ヒスタミン薬（第2世代）の内服','腎排泄型は透析患者で減量。眠気の少ないものを選ぶ。','LABEL',{plan:'フェキソフェナジン 60mg 1日1回、またはロラタジン 10mg 2日に1回。2週間で効果判定'});
+  if(!k.length) add('info','追加','効果不十分なら：κオピオイド受容体作動薬','「血液透析患者のそう痒症（既存治療で効果不十分な場合）」に保険適用。','LABEL',
+   {plan:'ナルフラフィン 2.5µg 1日1回 夕食後または就寝前から開始（最大5µg）。不眠・眠気に注意。服薬が難しい場合は ジフェリケファリン 0.5µg/kg'+(dw?`（DW ${dw}kg → ${r1(dw*0.5)}µg）`:'（DWで計算）')+' を週3回 透析終了時に回路静脈側から'});
+  else if(has('nalfurafine')&&stepUp(s,'nalfurafine')) add('info','増量','ナルフラフィンの増量','','LABEL',{plan:`ナルフラフィン ${stepUp(s,'nalfurafine')}（2週間以上あけて効果判定）`});
+  if(has('nalfurafine')&&has('difelikefalin')) add('warn','中止','ナルフラフィンとジフェリケファリンの併用は避ける','同じ作用機序（κ受容体作動）。','LABEL',{plan:'どちらか一方に統一'});
+  if(has('gaba')) add('info','確認','プレガバリン・ミロガバリンは尿毒症性そう痒への有効性の報告があるが、そう痒には保険適用外','');
+ }
+ if(F.constip){
+  const cul=any(['ps_ca','ps_na','sevelamer','bixalomer','lanthanum','caco3','oral_iron','patiromer']);
+  if(cul.length){
+   const alt=[]; if(has('ps_ca')||has('ps_na')) alt.push('K吸着薬はポリスチレンスルホン酸 → ジルコニウムシクロケイ酸Na 5g 非透析日1日1回へ');
+   if(has('sevelamer')||has('bixalomer')) alt.push('ポリマー系P吸着薬 → 炭酸ランタン または スクロオキシ水酸化鉄へ（P高値ならテナパノルの併用は便通にも有利）');
+   add('warn','確認','便秘の原因となりうる薬剤',cul.map(shortName).join('、')+'。水分・食物繊維制限も影響する。','',{plan:alt.length?alt.join('。'):'可能なら原因薬の減量・変更を検討'});
+  }
+  if(has('mgo')) add('warn','変更','酸化マグネシウム → Mgを含まない下剤へ','透析患者ではMgが蓄積しやすい（高Mg血症）。','',{plan:'酸化マグネシウムを中止し、下記のMg非含有下剤へ切替'});
+  const lax=any(['lubiprostone','linaclotide','elobixibat','peg']);
+  if(!lax.length) add('warn','追加','便秘治療薬（Mgを含まないもの）の開始','いずれも慢性便秘症に保険適用。ポリエチレングリコール（モビコール）は少量のNa・Kを含む。','LABEL',
+   {plan:'エロビキシバット 10mg 1日1回 食前（最大15mg）、またはリナクロチド 0.5mg 1日1回 食前、またはルビプロストン 24µg 1日1回 食後（腎機能障害では1日1回から）。出ない日の頓用：センノシド 12〜24mg 就寝前'});
+  else{
+   const up=lax.map(id=>stepUp(s,id)?`${shortName(id)} ${stepUp(s,id)}`:null).filter(Boolean);
+   add('info',up.length?'増量':'追加','便秘治療薬の調整','','LABEL',{plan:up.length?up.join('、または ')+'（1〜2週で効果判定）':'作用機序の異なる薬剤を併用（例：エロビキシバット 10mg ＋ リナクロチド 0.5mg）'});
+  }
+  if(Phi&&!has('tenapanor')) add('info','確認','高P血症もあれば：テナパノルは便通も軟らかくする','P低下（NHE3阻害）と便秘改善の両方が期待できる。下痢に注意。','MBD25,TENA',{plan:'テナパノル 1回5mg 1日2回 朝・夕食直前から'});
+ }
+ if(SY.insomnia){
+  const c=[]; if(SY.itch) c.push('かゆみ'); if(SY.rls) c.push('むずむず脚'); if(has('nalfurafine')) c.push('ナルフラフィン（不眠の副作用）');
+  add('info','確認','不眠：原因の確認',(c.length?`該当：${c.join('、')}。`:'')+'透析後の昼寝、カフェイン、睡眠時無呼吸症候群も確認。','');
+  if(has('bzd')) add('warn','変更','ベンゾジアゼピン系・Z薬：転倒・せん妄のリスク','高齢の透析患者では漸減し、オレキシン受容体拮抗薬などへの変更を検討。','',{plan:'レンボレキサント 5mg 就寝直前を追加し、ベンゾジアゼピン系・Z薬は2〜4週かけて漸減'});
+  else if(!has('sleep')) add('info','追加','睡眠薬：腎機能による調節が不要なものを選ぶ','','LABEL',{plan:'レンボレキサント 5mg 就寝直前（最大10mg）、またはスボレキサント 15〜20mg（高齢者は15mg）。せん妄リスクが高ければラメルテオン 8mg'});
+ }
+ if(SY.rls){
+  if(ironLowAny) add('warn','追加','むずむず脚：まず鉄欠乏を是正','鉄欠乏（フェリチン<100またはTSAT<20%）はRLSを悪化させる。','ANE25',{plan:'上の「鉄補充」の具体案に従って鉄を補充し、1〜3か月後に症状を再評価'});
+  if(!has('rotigotine')&&!has('pramipexole')) add('info','追加','RLS治療薬','ガバペンチン エナカルビル（レグナイト）は高度腎機能障害（CrCl<30）で禁忌。','LABEL',{plan:'ロチゴチン貼付剤 2.25mg/日から（肝代謝で腎機能による調節不要、1週以上あけて2.25mgずつ、最大6.75mg）。代替：プラミペキソール 0.125mg 就寝2〜3時間前（腎排泄のため少量で）'});
+  else if(has('rotigotine')&&stepUp(s,'rotigotine')) add('info','増量','ロチゴチンの増量','症状促進（augmentation：症状が早い時間に出る・範囲が広がる）がないかも確認。','LABEL',{plan:`ロチゴチン ${stepUp(s,'rotigotine')}（1週以上あけて）`});
+ }
+ if(SY.cramp){
+  const c=[]; if(Calo) c.push(`低Ca（${r1(Ca)}）`); if(d.mg!=null&&d.mg<T.Mg_lo) c.push(`低Mg（${d.mg}）`); if(d.k!=null&&d.k<T.K_lo) c.push(`低K（${d.k}）`);
+  const ufPct=(d.uf!=null&&dw)?d.uf/dw*100:null; if(ufPct!=null&&ufPct>=5) c.push(`除水量が多い（DWの${r1(ufPct)}%）`);
+  add('info','確認','こむら返り：原因の確認',(c.length?`該当：${c.join('、')}。`:'')+'透析中に起こる場合はDWの設定（低すぎないか）、除水速度、透析間体重増加を確認。','',{plan:(ufPct!=null&&ufPct>=5)?'DWの再評価（心胸比・体液量評価）と、透析間体重増加の抑制（塩分制限）':''});
+  if(!has('shakuyaku')) add('info','追加','芍薬甘草湯（頓用）','','',{plan:'芍薬甘草湯 2.5g をこむら返り時、または透析開始時に予防的に頓用。連用は避ける（偽アルドステロン症：低K・浮腫・高血圧）'});
+  if(!has('carnitine')) add('info','確認','カルニチン欠乏の可能性','透析患者ではカルニチン欠乏が筋痙攣・筋力低下・ESA低反応性の一因になる。保険適用はカルニチン欠乏症。','',{plan:'血中カルニチン（遊離・アシル）を測定し、欠乏があれば L-カルニチン 10mg/kg を透析終了時に静注'});
+ }
+ if(SY.idh){
+  const bp=any(['rasi']);
+  add('warn','確認','透析中の血圧低下：透析条件の見直しを先に','DWが低すぎないか、除水速度、透析中の食事、透析液温（低めにすると血圧が保たれやすい）を確認。','',
+   {plan:(bp.length?'透析日の朝の降圧薬（'+bp.map(shortName).join('・')+'等）を休薬、または透析後・夕方の服用へ変更。':'')+'DWの再評価'});
+  if(!has('droxidopa')&&!has('amezinium')) add('info','追加','透析時低血圧の治療薬','いずれも透析時の低血圧・症状に保険適用。','LABEL',{plan:'アメジニウム 10mg を透析開始時に内服、またはドロキシドパ 200mg を透析開始30〜60分前に内服（最大400mg）。アメジニウムは閉塞隅角緑内障・前立腺肥大による残尿・甲状腺機能亢進症で禁忌'});
+  else if(has('droxidopa')&&stepUp(s,'droxidopa')) add('info','増量','ドロキシドパの増量','','LABEL',{plan:`ドロキシドパ ${stepUp(s,'droxidopa')}`});
+ }
+ if(SY.gerd){
+  if(!has('ppi')) add('info','追加','胸やけ・胃もたれ：PPI','PPIは腎機能による調節不要。長期使用で低Mg血症、鉄の吸収低下、炭酸Caのリン吸着効果の低下に注意。','LABEL',{plan:has('h2ra')?'H2受容体拮抗薬をランソプラゾール 15mg 1日1回へ変更':'ランソプラゾール 15mg 1日1回、またはエソメプラゾール 10〜20mg 1日1回'});
+  if(has('nsaids')) add('warn','中止','NSAIDsは胃粘膜障害の原因になる','','',{plan:'アセトアミノフェンへ変更（1回500mg 頓用）'});
+ }
+ if(SY.pain){
+  if(has('nsaids')) add('warn','変更','痛み：NSAIDs → アセトアミノフェン','NSAIDsは消化管出血・高K・残腎機能低下のリスク。','',{plan:'アセトアミノフェン 1回500mg 頓用（1日1500mg程度まで）へ変更'});
+  else if(!has('apap')) add('info','追加','痛み：アセトアミノフェンを第一に','','',{plan:'アセトアミノフェン 1回300〜500mg 頓用（1日1500mg程度まで、肝障害に注意）'});
+  if(!has('gaba')) add('info','確認','しびれ・神経障害性疼痛なら','','JSNP,LABEL',{plan:'ミロガバリン 2.5mg 1日1回から（透析患者の上限 7.5mg/日）、またはプレガバリン 25mg 1日1回（HD後に補充）'});
+ }
+
  sec('栄養・炎症・薬剤安全性','Nut');
  if(d.alb!=null&&d.alb<T.Alb_lo) add('warn','確認',`Alb ${d.alb} g/dL：低栄養リスク`,'GNRI等で評価。過度なP・K・たんぱく制限を避け、必要なら薬剤で管理。');
  if(d.crp!=null&&d.crp>T.CRP_hi) add('info','確認',`CRP ${d.crp} mg/dL：炎症`,'フェリチン上昇・Alb低下・ESA低反応性の解釈に注意。感染源（バスキュラーアクセス等）を検索。');
@@ -857,9 +969,9 @@ const FXG={rasi:{K:1},vd:{P:1,Ca:1,PTH:-1},ca:{P:-1,Ca:1,PTH:-1},nc:{P:-1},cm:{P
 const GNAME={rasi:'RAS阻害薬',vd:'活性型ビタミンD製剤',ca:'Ca製剤',nc:'Ca非含有P低下薬',cm:'カルシミメティクス',kb:'K吸着薬',mra:'MRA',nahco3:'炭酸水素Na',epo:'ESA/HIF-PH阻害薬',iron:'鉄剤',mgo:'酸化マグネシウム'};
 const LABJ={P:'P',Ca:'補正Ca',PTH:'PTH',K:'K',Hb:'Hb',Mg:'Mg'};
 // 管理の優先度（小さいほど優先）：安全性 → K → P・Ca（PP3.3.1）→ 透析量 → 貧血 → 酸塩基 → PTH → その他
-const DOMPRI={Safe:0,K:1,PCa:2,Dial:3,Hb:4,Acid:5,PTH:6,Misc:7,DM:7,Nut:8,Lip:9,UA:9};
+const DOMPRI={Safe:0,K:1,PCa:2,Dial:3,Hb:4,Acid:5,Sym:5,PTH:6,Misc:7,DM:7,Nut:8,Lip:9,UA:9};
 const LABPRI={K:1,P:2,Ca:2,Hb:4,PTH:6,Mg:7};
-const DOMJ={Safe:'透析用量',K:'K',PCa:'P・Ca',Dial:'透析量',Hb:'貧血',Acid:'酸塩基',PTH:'PTH',Misc:'その他',DM:'糖代謝',Nut:'栄養・安全性',Lip:'脂質',UA:'尿酸'};
+const DOMJ={Sym:'症状',Safe:'透析用量',K:'K',PCa:'P・Ca',Dial:'透析量',Hb:'貧血',Acid:'酸塩基',PTH:'PTH',Misc:'その他',DM:'糖代謝',Nut:'栄養・安全性',Lip:'脂質',UA:'尿酸'};
 const ACTIONS=['追加','増量','減量','中止','休薬','変更'];
 const STATUS_RE=/^(9分割図|intact PTH|K \d|Hb \d|GA |透析前血糖|Alb |CRP |Mg \d|ALP |P と|鉄指標|UA \d)/;
 function score(it){
@@ -978,7 +1090,7 @@ function prioritize(secs,s,st){
   const names=maxed.map(id=>MEDS.flatMap(x=>x[1]).find(m=>m[0]===id)[1]).join('・');
   it.notes.push({t:'max',s:`${names}はすでに最大用量 → 増量ではなく${maxed.length===using.length?'作用機序の異なる薬剤の併用・変更':'他の使用中薬剤の増量または併用・変更'}を検討`});
  }));
- return all.filter(it=>!it.superseded&&it.lvl!=='ok'&&(ACTIONS.includes(it.act)||it.lvl==='danger'||(it.lvl==='warn'&&!STATUS_RE.test(it.text))))
+ return all.filter(it=>!it.superseded&&it.lvl!=='ok'&&(ACTIONS.includes(it.act)||it.lvl==='danger'||it.plan||(it.lvl==='warn'&&!STATUS_RE.test(it.text))))
   .sort((a,b)=>score(a)-score(b));
 }
 
@@ -1036,6 +1148,7 @@ function run(){
  if(chips.length) L.push('検査: '+chips.map(c=>c.html.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim()+(c.st!=='ok'?'*':'')).join(' / '));
  const meds=[]; MEDS.forEach(([,items])=>items.forEach(([id,n,b])=>{if(s.meds[id].on)meds.push(medName(n,b)+(s.meds[id].dose?` ${s.meds[id].dose}`:''))}));
  if(meds.length) L.push('処方: '+meds.join('、'));
+ const syl=SYMS.filter(([id])=>s.sym[id]).map(x=>x[1]); if(syl.length) L.push('症状: '+syl.join('、'));
  if(ranked.length){ L.push('■ 対応の優先順位'); ranked.forEach((i,n)=>{ L.push(`  ${n+1}. [${i.act}] ${i.text}`); if(i.plan) L.push(`     具体案: ${i.plan}`); (i.notes||[]).filter(x=>x.t!=='trade').forEach(x=>L.push(`     → ${x.s}`)); }); }
  L.push('■ 領域別の確認事項');
  secs.forEach(x=>{const its=x.items.filter(i=>i.lvl!=='ok'&&!ranked.includes(i)&&!i.superseded); if(!its.length)return; L.push('□ '+x.title); its.forEach(i=>{L.push(`  [${i.act}] ${i.text}`); if(i.plan) L.push(`     具体案: ${i.plan}`);})});
@@ -1076,7 +1189,8 @@ $('btnSave').onclick=()=>{
 $('fileLoad').onchange=e=>{const f=e.target.files[0]; if(!f)return; const r=new FileReader(); r.onload=()=>{try{setState(JSON.parse(r.result))}catch(err){alert('JSONを読み込めませんでした')}}; r.readAsText(f); e.target.value=''};
 $('btnSample').onclick=()=>setState({
  patient:{label:'サンプル1',date:'2026-10-07',age:'72',dw:'54.5',dialca:'2.75',pthassay:'intact'},
- flags:{dm:true,cvd:true,constip:true},
+ flags:{dm:true,cvd:true},
+ sym:{itch:true,constip:true},
  labs:{alb:{now:'3.4',prev:'3.6'},ca:{now:'9.3',prev:'9.0'},p:{now:'6.8',prev:'6.1'},pth:{now:'380',prev:'310'},alp:{now:'140'},mg:{now:'3.3'},
   k:{now:'5.8',prev:'5.4'},bun_pre:{now:'68',prev:'72'},bun_post:{now:'22',prev:'24'},hd_time:{now:'4',prev:'4'},uf:{now:'2.6',prev:'2.8'},wt_post:{now:'54.6'},hb:{now:'9.6',prev:'10.2'},ferritin:{now:'62'},fe:{now:'45'},tibc:{now:'260'},zn:{now:'55'},crp:{now:'0.2'},
   ga:{now:'23.1'},hba1c:{now:'6.2'},ldl:{now:'112'},ua:{now:'8.4'}},
@@ -1235,13 +1349,13 @@ function storeSave(){
  const db=storeGet();
  if(db[l]&&!confirmTwice('save',`「${l}」を上書き保存するにはもう一度押す`,$('btnStoreSave'))) return;
  const labs={}; Object.entries(st.labs).forEach(([k,v])=>{if(v.now!=='') labs[k]=v.now});
- db[l]={savedAt:today(),date:st.patient.date,patient:{age:st.patient.age,dw:st.patient.dw,dialca:st.patient.dialca,pthassay:st.patient.pthassay},flags:st.flags,meds:st.meds,labs};
+ db[l]={savedAt:today(),date:st.patient.date,patient:{age:st.patient.age,dw:st.patient.dw,dialca:st.patient.dialca,pthassay:st.patient.pthassay},flags:st.flags,sym:st.sym,meds:st.meds,labs};
  if(storeSet(db)){storeRefresh(); flash('btnStoreSave','保存しました');}
 }
 function storeLoad(l){
  const r=storeGet()[l]; if(!r) return;
  const labs={}; Object.entries(r.labs||{}).forEach(([k,v])=>labs[k]={now:'',prev:v});
- setState({patient:{label:l,date:'',...r.patient},flags:r.flags,meds:r.meds,labs});
+ setState({patient:{label:l,date:'',...r.patient},flags:r.flags,sym:r.sym,meds:r.meds,labs});
  $('storeBar').hidden=false;
  $('storeBar').innerHTML=`「${esc(l)}」の処方を読み込み、前回（${esc(r.date||r.savedAt)}）の検査値を「前回」欄に入れました。今回の検査値を入力してください。`;
 }
