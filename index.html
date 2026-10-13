@@ -157,6 +157,8 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
       <label class="f">検査日<input type="text" id="p_date" placeholder="2026-10-07"></label>
       <label class="f">年齢<input type="number" id="p_age"></label>
       <label class="f">DW (kg)<input type="number" id="p_dw" step="any"></label>
+      <label class="f">透析前血圧 収縮期 (mmHg)<input type="number" id="p_sbp"></label>
+      <label class="f">透析前血圧 拡張期 (mmHg)<input type="number" id="p_dbp"></label>
       <label class="f">透析液Ca (mEq/L)
         <select id="p_dialca"><option value="">未選択</option><option>2.5</option><option>2.75</option><option>3.0</option></select></label>
       <label class="f">PTH測定法
@@ -273,7 +275,7 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
 
 <script>
 "use strict";
-const SYMS=[['itch','かゆみ'],['constip','便秘'],['insomnia','不眠'],['rls','むずむず脚（RLS）'],['cramp','こむら返り'],['idh','透析中の血圧低下'],['gerd','胸やけ・胃もたれ'],['pain','痛み・しびれ']];
+const SYMS=[['itch','かゆみ'],['constip','便秘'],['insomnia','不眠'],['rls','むずむず脚（RLS）'],['cramp','こむら返り'],['idh','透析中の血圧低下'],['gerd','胸やけ・胃もたれ'],['pain','痛み・しびれ'],['edema','むくみ'],['htn','高血圧']];
 const FLAGS=[['dm','糖尿病'],['cvd','動脈硬化性疾患・心血管疾患既往'],['hf','心不全'],['malnut','低栄養'],['fx_risk','骨折リスク高（女性・低BMI・骨代謝マーカー上昇など）'],['ptg','副甲状腺腫大（エコー）'],['tx','腎移植の可能性'],['gout','痛風既往'],['malig','活動性悪性腫瘍'],['pdr','増殖糖尿病網膜症/黄斑浮腫'],['thromb','血栓塞栓症既往'],['diarrhea','下痢傾向'],['urine','残腎尿量あり']];
 const LAB_GROUPS=[
  ['CKD-MBD',[['alb','Alb','g/dL'],['ca','Ca（実測）','mg/dL'],['p','P','mg/dL'],['pth','PTH','pg/mL'],['alp','ALP (IFCC)','U/L'],['mg','Mg','mg/dL']]],
@@ -290,6 +292,7 @@ const MEDS=[
  ['カリウム・酸塩基・RAS',[['zs','ジルコニウムシクロケイ酸Na','ロケルマ'],['patiromer','パチロマー','ビルタサ'],['ps_ca','ポリスチレンスルホン酸Ca','カリメート、アーガメイト'],['ps_na','ポリスチレンスルホン酸Na','ケイキサレート'],['nahco3','炭酸水素Na','重曹'],['rasi','ACE阻害薬／ARB／ARNI','エナラプリル、オルメテック、アジルバ、エンレスト等'],['mra','MRA','アルダクトンA、セララ、ミネブロ']]],
  ['貧血',[['oral_iron','クエン酸第一鉄Na（経口鉄剤）','フェロミア'],['iv_iron','静注鉄剤','フェジン、フェインジェクト、モノヴァー'],['esa','ESA（注射）','ネスプ、ミルセラ、エポジン等'],
    ['dap','ダプロデュスタット（HIF-PH阻害薬）','ダーブロック'],['vad','バダデュスタット（HIF-PH阻害薬）','バフセオ'],['ena','エナロデュスタット（HIF-PH阻害薬）','エナロイ'],['mol','モリデュスタット（HIF-PH阻害薬）','マスーレッド'],['rox','ロキサデュスタット（HIF-PH阻害薬）','エベレンゾ']]],
+ ['降圧薬・利尿薬',[['ccb','Ca拮抗薬','アムロジン、ノルバスク、アダラートCR等'],['bb','β遮断薬','アーチスト、メインテート'],['alpha','α遮断薬（ドキサゾシン）','カルデナリン'],['loop','ループ利尿薬','ラシックス、ダイアート']]],
  ['尿酸',[['allopurinol','アロプリノール','ザイロリック'],['febuxostat','フェブキソスタット','フェブリク'],['topiroxostat','トピロキソスタット','トピロリック、ウリアデック']]],
  ['糖尿病',[['dpp4','DPP-4阻害薬','トラゼンタ、テネリア、ジャヌビア等'],['insulin','インスリン',''],['glp1','GLP-1受容体作動薬','トルリシティ、オゼンピック、リベルサス等'],['agi','α-GI','ベイスン、セイブル等'],['glinide','グリニド薬','グルファスト、シュアポスト、スターシス等'],['su','SU薬','アマリール、グリミクロン等'],['metformin','メトホルミン','メトグルコ'],['sglt2','SGLT2阻害薬','フォシーガ、ジャディアンス等'],['tzd','チアゾリジン薬（ピオグリタゾン）','アクトス'],['imeglimin','イメグリミン','ツイミーグ']]],
  ['脂質',[['statin','スタチン','リピトール、クレストール、リバロ等'],['ezetimibe','エゼチミブ','ゼチーア'],['fibrate','ベザフィブラート／フェノフィブラート','ベザトール、リピディル、トライコア']]],
@@ -352,6 +355,9 @@ const DOSES={
  bzd:['ゾルピデム 5mg','ゾルピデム 10mg','ブロチゾラム 0.25mg','エスゾピクロン 1mg','エスゾピクロン 2mg'],
  rotigotine:['2.25mg/日','4.5mg/日','6.75mg/日*'],pramipexole:['0.125mg 就寝前','0.25mg 就寝前','0.5mg 就寝前'],
  shakuyaku:['2.5g 頓用','2.5g×2/日','7.5g/日 分3'],carnitine:['静注 10mg/kg 透析後','静注 20mg/kg 透析後','内服'],
+ ccb:['アムロジピン 2.5mg','アムロジピン 5mg','アムロジピン 10mg*','ニフェジピンCR 20mg','ニフェジピンCR 40mg','シルニジピン 10mg'],
+ bb:['カルベジロール 2.5mg','カルベジロール 5mg','カルベジロール 10mg','カルベジロール 20mg','ビソプロロール 2.5mg','ビソプロロール 5mg'],
+ alpha:['0.5mg/日','1mg/日','2mg/日','4mg/日','8mg/日*'],loop:['フロセミド 20mg','フロセミド 40mg','フロセミド 80mg','アゾセミド 30mg','アゾセミド 60mg'],
  droxidopa:['200mg 透析前','400mg 透析前*'],amezinium:['10mg 透析開始時*'],apap:['300mg 頓用','500mg 頓用','1500mg/日 分3','2000mg/日 分4'],
  h2ra:['ファモチジン 10mg/日*','ファモチジン 20mg 週3回 HD後*','ファモチジン 20mg/日!','ファモチジン 40mg/日!'],
  ppi:['エソメプラゾール 10mg','エソメプラゾール 20mg','ランソプラゾール 15mg','ランソプラゾール 30mg'],
@@ -376,6 +382,7 @@ const HDNOTE={
  glinide:'ナテグリニドは透析患者で禁忌（L・JSNP）。ミチグリニド・レパグリニドは低用量から慎重に',
  antihist:'レボセチリジン（ザイザル）は透析患者で禁忌（JSNP）。セチリジンも重度腎障害で禁忌（L）。フェキソフェナジン・ロラタジンは国内添付文書に腎機能別の用量規定なし',
  pramipexole:'透析患者はRLSでの十分な使用経験がなく慎重投与（JSNP）。0.125mgから',
+ bb:'カルベジロールは重篤な腎機能障害（血清Cr 6以上）で血中濃度上昇傾向、ビソプロロールは重篤な腎機能障害で排泄遅延・作用増強のおそれ（L）。少量から',
 };
 const doseFlag=(s,id)=>{const d=s.meds[id]?.dose; if(!d) return ''; const o=doseOpts(id).find(o=>doseLabel(o)===d); return o?(/[*!#]$/.test(o)?o.slice(-1):'ok'):'free'};
 const medName=(g,b)=>b?`${g}（${b}）`:g;
@@ -447,6 +454,10 @@ const EFFECTS={
  carnitine:{fx:[['カルニチン','↑']],use:'血液透析に伴うカルニチン欠乏症：10〜20mg/kgを透析終了時に透析回路静脈側へ注入',caution:'保険適用はカルニチン欠乏症（臨床症状・検査所見で診断）。漫然と継続しない'},
  droxidopa:{fx:[['血圧','↑']],use:'血液透析患者：1回200〜400mgを透析開始30分〜1時間前（1回400mgまで）',caution:'保険適用：起立性低血圧を伴う血液透析患者のめまい・ふらつき・立ちくらみ、倦怠感、脱力感の改善。重篤な末梢血管病変（糖尿病性壊疽等）のある血液透析患者は禁忌。アメジニウムとの併用で血圧の異常上昇に注意'},
  amezinium:{fx:[['血圧','↑']],use:'透析開始時に1回10mg',caution:'保険適用：透析施行時の血圧低下の改善。禁忌：高血圧症、甲状腺機能亢進症、褐色細胞腫・パラガングリオーマ、閉塞隅角緑内障、残尿を伴う前立腺肥大。ドロキシドパとの併用注意'},
+ ccb:{fx:[['血圧','↓']],use:'アムロジピン：2.5〜5mg 1日1回、効果不十分なら10mgまで',caution:'腎機能による用量規定なし（重篤な腎機能障害では降圧に伴う腎機能低下に注意：添付文書）。用量依存性の下腿浮腫'},
+ bb:{fx:[['血圧','↓'],['心拍数','↓']],use:'カルベジロール：1回10〜20mg 1日1回。ビソプロロール：5mg 1日1回',caution:'カルベジロールは重篤な腎機能障害（Cr 6以上）で血中濃度上昇傾向、ビソプロロールは重篤な腎機能障害で排泄遅延（添付文書）。徐脈・心不全増悪・気管支喘息に注意'},
+ alpha:{fx:[['血圧','↓']],use:'0.5mg 1日1回から、1〜2週ごとに1〜4mgへ漸増（最高8mg）',caution:'起立性低血圧（特に初回・増量時）。透析後のふらつきに注意'},
+ loop:{fx:[['尿量','↑'],['K','↓']],use:'フロセミド：通常1日40〜80mg（腎機能不全では大量を要することがある）',caution:'残腎尿量がない（無尿）患者では効果がない。大量で聴覚障害'},
  apap:{fx:[['痛み','↓']],use:'1回300〜500mg 頓用（透析患者は1日1500mg程度までを目安）',caution:'腎障害では減量・投与間隔の延長を考慮（添付文書）。肝障害。NSAIDsより透析患者に適する'},
  h2ra:{fx:[['胃酸','↓']],use:'',caution:'腎排泄で蓄積 → 意識障害・血球減少。減量が必要'},
  ppi:{fx:[['胃酸','↓'],['Mg','↓']],use:'',caution:'低Mg血症。炭酸Caのリン吸着効果を弱める可能性'},
@@ -507,7 +518,7 @@ const BRAND=[
  ['シンバスタチン','リポバス'],['アトルバスタチン','リピトール'],['ロスバスタチン','クレストール'],['ピタバスタチン','リバロ'],['スタチン','リピトール、クレストール、リバロ等'],['エゼチミブ','ゼチーア'],['ベザフィブラート','ベザトール'],['フェノフィブラート','リピディル、トライコア'],['ペマフィブラート','パルモディア'],
  ['アロプリノール','ザイロリック'],['フェブキソスタット','フェブリク'],['トピロキソスタット','トピロリック、ウリアデック'],
  ['DOAC','プラザキサ、イグザレルト、エリキュース、リクシアナ'],['ワルファリン','ワーファリン'],['アシクロビル','ゾビラックス',null,/^脳症/],['バラシクロビル','バルトレックス'],
- ['プレガバリン','リリカ'],['ミロガバリン','タリージェ'],['H2受容体拮抗薬','ガスター等'],['PPI','ネキシウム、タケプロン等'],['NSAIDs','ロキソニン、セレコックス等'],['アセトアミノフェン','カロナール'],
+ ['プレガバリン','リリカ'],['ミロガバリン','タリージェ'],['H2受容体拮抗薬','ガスター等'],['PPI','ネキシウム、タケプロン等'],['NSAIDs','ロキソニン、セレコックス等'],['アセトアミノフェン','カロナール'],['アムロジピン','アムロジン、ノルバスク'],['カルベジロール','アーチスト'],['ビソプロロール','メインテート'],['ドキサゾシン','カルデナリン'],['フロセミド','ラシックス'],['アゾセミド','ダイアート'],['アジルサルタン','アジルバ'],['オルメサルタン','オルメテック'],
  ['ジゴキシン','ジゴシン'],['スクラルファート','アルサルミン'],['ナルフラフィン','レミッチ、ノピコール'],['ジフェリケファリン','コルスバ'],['フェキソフェナジン','アレグラ'],['レボセチリジン','ザイザル'],['セチリジン','ジルテック'],['ロラタジン','クラリチン'],['ビラスチン','ビラノア'],['ヘパリン類似物質','ヒルドイド'],
  ['レンボレキサント','デエビゴ'],['スボレキサント','ベルソムラ'],['ラメルテオン','ロゼレム'],['ゾルピデム','マイスリー'],['ロチゴチン','ニュープロパッチ'],['プラミペキソール','ビ・シフロール'],['ガバペンチン エナカルビル','レグナイト'],['ドロキシドパ','ドプス'],['アメジニウム','リズミック'],['L-カルニチン','エルカルチンFF'],['ランソプラゾール','タケプロン'],['エソメプラゾール','ネキシウム'],['ボノプラザン','タケキャブ'],['センノシド','プルゼニド'],['ピコスルファート','ラキソベロン'],['パチロマー','ビルタサ'],['ダプロデュスタット','ダーブロック'],['エナロデュスタット','エナロイ'],['モリデュスタット','マスーレッド'],
  ['カルシミメティクス','レグパラ、オルケディア、パーサビブ注、ウパシタ注','cm'],['ピオグリタゾン','アクトス'],['イメグリミン','ツイミーグ'],['クロピドグレル','プラビックス'],['チアゾリジン薬','アクトス'],['沈降炭酸Ca','カルタン','caco3']
@@ -544,6 +555,7 @@ const REFS={
  TENA:{s:'フォゼベル',t:'テナパノル（フォゼベル）発売 2024年2月：透析中のCKD患者における高リン血症の改善',u:'https://www.yakuji.co.jp/?p=108545'},
  CKDG24:{s:'CKD診療ガイド2024',t:'日本腎臓学会「CKD診療ガイド2024」第9章 腎性貧血',u:'https://jsn.or.jp/data/gl2024_ckd_ch09.pdf'},
  LIFE:{s:'RENAL LIFECYCLE',t:'RENAL LIFECYCLE（透析患者を含むダパグリフロジンのRCT、進行中）',u:'https://clinicaltrials.gov/study/NCT05374291'},
+ HTN11:{s:'心血管GL2011',t:'日本透析医学会「血液透析患者における心血管合併症の評価と治療に関するガイドライン」2011：降圧目標 透析前140/90 mmHg未満、ARB/ACE阻害薬を第一選択',u:'https://www.jsdt.or.jp/dialysis/2094.html'},
  JSNP:{s:'JSNP投与量一覧',t:'日本腎臓病薬物療法学会「腎機能低下時に最も注意の必要な薬剤投与量一覧」2025年改訂38版',u:'https://jsnp.org/files/dosage_recommendations_38.pdf'},
  LABEL:{s:'添付文書',t:'各製品の添付文書（PMDA 医療用医薬品情報検索）',u:'https://www.pmda.go.jp/PmdaSearch/iyakuSearch/'}
 };
@@ -592,7 +604,7 @@ buildT();
 // ---------- state ----------
 function getState(){
  const s={patient:{},flags:{},labs:{},meds:{}};
- ['label','date','age','dw','dialca','pthassay'].forEach(k=>s.patient[k]=$('p_'+k).value);
+ ['label','date','age','dw','dialca','pthassay','sbp','dbp'].forEach(k=>s.patient[k]=$('p_'+k).value);
  FLAGS.forEach(([id])=>s.flags[id]=$('f_'+id).checked);
  s.sym={}; SYMS.forEach(([id])=>s.sym[id]=$('sy_'+id).checked);
  LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>s.labs[id]={now:$('l_'+id).value,prev:$('lp_'+id).value}));
@@ -600,7 +612,7 @@ function getState(){
  return s;
 }
 function setState(s){
- ['label','date','age','dw','dialca','pthassay'].forEach(k=>{$('p_'+k).value=s.patient?.[k]??(k==='pthassay'?'intact':'')});
+ ['label','date','age','dw','dialca','pthassay','sbp','dbp'].forEach(k=>{$('p_'+k).value=s.patient?.[k]??(k==='pthassay'?'intact':'')});
  FLAGS.forEach(([id])=>$('f_'+id).checked=!!s.flags?.[id]);
  SYMS.forEach(([id])=>$('sy_'+id).checked=!!(s.sym?.[id]||(id==='constip'&&s.flags?.constip)));
  LAB_GROUPS.forEach(([,labs])=>labs.forEach(([id])=>{$('l_'+id).value=s.labs?.[id]?.now??'';$('lp_'+id).value=s.labs?.[id]?.prev??''}));
@@ -946,6 +958,45 @@ function evaluate(s,d){
   if(!has('gaba')) add('info','確認','しびれ・神経障害性疼痛なら','','JSNP,LABEL',{plan:'ミロガバリン 2.5mg 1日1回から（透析患者の上限 7.5mg/日）、またはプレガバリン 25mg 1日1回（HD後に補充）'});
  }
 
+ const sbp=num(s.patient.sbp), dbp=num(s.patient.dbp);
+ const ufP=(d.uf!=null&&dw)?d.uf/dw*100:null;
+ if(SY.edema){
+  const c=[];
+  if(ufP!=null) c.push(`除水量（透析間の体重増加）がDWの${r1(ufP)}%`+(ufP>=6?'：多い（6%以上は予後不良と関連）':ufP>=5?'：やや多い':''));
+  if(d.alb!=null&&d.alb<T.Alb_lo) c.push(`低Alb（${d.alb}）`);
+  const md=any(['ccb','gaba','tzd','zs','nahco3','ps_na','shakuyaku','nsaids']); if(md.length) c.push('浮腫・Na貯留の原因になりうる薬剤：'+md.map(shortName).join('、'));
+  if(F.hf) c.push('心不全あり（心機能評価を）');
+  add('warn','確認','むくみ：体液量（DW・塩分・体重増加）の見直しを先に',(c.length?`該当：${c.join('／')}。`:'')+'透析間の体重増加の目安は中1日でDWの3%以内、中2日で5%以内（最大でも6%未満）。食塩は無尿の場合 約8gで1Lの水分が貯留する。','',
+   {plan:'DWを0.3〜0.5kgずつ下げて再設定（透析中の血圧低下・こむら返り・心胸比で評価。刻み幅は目安）。減塩と飲水指導'+(md.length?`。${md.map(shortName).join('・')}の必要性を見直し（例：アムロジピンによる浮腫は減量・他剤への変更で改善することがある）`:'')});
+  if(F.urine){
+   if(!has('loop')) add('info','追加','残腎尿量あり：ループ利尿薬','無尿では効果がない。','LABEL',{plan:'フロセミド 40mg 1日1回から（通常1日40〜80mg、腎機能低下例ではより大量を要することがある）。尿量と体重で効果判定'});
+   else if(stepUp(s,'loop')) add('info','増量','ループ利尿薬の増量','','LABEL',{plan:`${stepUp(s,'loop')}（尿量・体重・Kを確認）`});
+  }else{
+   add('info','確認','残腎尿量なし：利尿薬は効果がない','','',{plan:'透析での除水を強化：透析時間の延長、または除水のみを行う体外限外濾過（ECUM）の追加を検討'+(has('loop')?'。ループ利尿薬は無尿なら中止':'')});
+  }
+ }
+ if(SY.htn||(sbp!=null&&sbp>=140)||(dbp!=null&&dbp>=90)){
+  const bpTxt=sbp!=null?`透析前血圧 ${sbp}${dbp!=null?'/'+dbp:''} mmHg`:'高血圧';
+  const high=(sbp!=null&&sbp>=140)||(dbp!=null&&dbp>=90);
+  if(sbp!=null&&!high) add('ok','継続',`${bpTxt}：目標内（透析前 140/90 mmHg未満）`,'','HTN11');
+  else{
+   const c=[]; if(ufP!=null&&ufP>=5) c.push(`体重増加がDWの${r1(ufP)}%`); if(esaLike&&d.hb_p!=null&&d.hb-d.hb_p>1) c.push('Hbの上昇（ESA/HIF-PH阻害薬は血圧を上げる）'); if(has('nsaids')) c.push('NSAIDs');
+   add(sbp!=null&&sbp>=180?'danger':'warn','確認',`${bpTxt}：降圧の前に体液量と服薬状況の確認を`,'目標は透析前（週初め）140/90 mmHg未満（日本透析医学会 2011）。透析患者の血圧管理の基本はDWの適正化と減塩。降圧が不十分なときはまず服薬アドヒアランスを確認。家庭血圧も参考に。'+(c.length?`該当：${c.join('、')}。`:''),'HTN11',
+    {plan:'DWの再評価と減塩・飲水指導（体重増加を中2日でDWの5%以内に）'+(SY.idh?'。透析中の血圧低下もあるため、降圧薬は透析日の朝を避けて夜（透析後）に服用':'')});
+   const kHigh=d.k!=null&&d.k>T.K_hi, ras=has('rasi'), ccbOn=has('ccb'), bbOn=has('bb');
+   let plan='', act='追加';
+   if(!ras&&!ccbOn) plan=kHigh?'アムロジピン 2.5〜5mg 1日1回から（腎機能による用量規定なし、最大10mg）。高K血症のためRAS阻害薬は後回し':'ARB（例：アジルサルタン 20mg 1日1回、オルメサルタン 20mg 1日1回）を第一選択（心血管保護）。またはアムロジピン 2.5〜5mg 1日1回（最大10mg）';
+   else if(ras&&!ccbOn) plan='アムロジピン 2.5〜5mg 1日1回を追加（最大10mg）';
+   else if(ccbOn&&!ras&&!kHigh) {plan='ARB（アジルサルタン 20mg 1日1回 等）を追加'+(stepUp(s,'ccb')&&!SY.edema?`、または ${stepUp(s,'ccb')}`:'');}
+   else if(ccbOn&&stepUp(s,'ccb')&&!SY.edema) {act='増量'; plan=`${stepUp(s,'ccb')}（2〜4週で効果判定）`;}
+   else if(!bbOn) plan='β遮断薬を追加：カルベジロール 10mg 1日1回から（1回10〜20mg。重篤な腎障害では血中濃度上昇傾向のため少量から）'+(F.cvd?'。冠動脈疾患・心筋梗塞の既往があり積極的な適応':'');
+   else if(!has('alpha')) plan='ドキサゾシン 0.5mg 1日1回から（1〜2週ごとに1〜4mgへ漸増、最高8mg）。起立性低血圧に注意';
+   else plan='4剤以上でも不十分：二次性高血圧の検索、DWの再評価、透析時間の延長を検討';
+   if(SY.edema&&ccbOn) plan+='（むくみがあるため、Ca拮抗薬の増量は避けた）';
+   add('warn',act,'降圧薬の調整','透析患者ではARB/ACE阻害薬を第一選択、β遮断薬は心筋梗塞・冠動脈疾患の例で積極的適応、Ca拮抗薬も有用（日本透析医学会 2011）。','HTN11,LABEL',{plan});
+  }
+ }
+
  sec('栄養・炎症・薬剤安全性','Nut');
  if(d.alb!=null&&d.alb<T.Alb_lo) add('warn','確認',`Alb ${d.alb} g/dL：低栄養リスク`,'GNRI等で評価。過度なP・K・たんぱく制限を避け、必要なら薬剤で管理。');
  if(d.crp!=null&&d.crp>T.CRP_hi) add('info','確認',`CRP ${d.crp} mg/dL：炎症`,'フェリチン上昇・Alb低下・ESA低反応性の解釈に注意。感染源（バスキュラーアクセス等）を検索。');
@@ -1049,7 +1100,7 @@ function autoPlan(it,c){
 }
 
 // 薬剤群 → 該当する処方ID（最大用量の判定用）
-const GMEDS={vd:['alfacalcidol','calcitriol_po','vd_iv'],ca:['caco3'],nc:['lanthanum','sevelamer','bixalomer','fecit','sfo','tenapanor'],cm:['cinacalcet','evocalcet','cm_iv'],
+const GMEDS={ccb:['ccb'],bb:['bb'],alpha:['alpha'],vd:['alfacalcidol','calcitriol_po','vd_iv'],ca:['caco3'],nc:['lanthanum','sevelamer','bixalomer','fecit','sfo','tenapanor'],cm:['cinacalcet','evocalcet','cm_iv'],
  kb:['zs','patiromer','ps_ca','ps_na'],epo:['esa','dap','vad','ena','mol','rox'],iron:['oral_iron','iv_iron'],nahco3:['nahco3'],mgo:['mgo'],mra:['mra'],rasi:['rasi']};
 function prioritize(secs,s,st){
  const all=secs.flatMap(x=>x.items);
