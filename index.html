@@ -100,7 +100,13 @@ details summary{cursor:pointer;font-weight:600}
 .modal[hidden]{display:none}
 .modal .box{background:var(--panel);color:var(--text);border-radius:12px;max-width:760px;width:100%;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
 .modal h2{font-size:16px;margin:0 0 8px}
-.ocr-top{margin-top:8px}
+.ocr-top{margin-top:8px;display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.ocr-top img{width:140px;border:1px solid var(--line);border-radius:6px;cursor:zoom-in}
+.ocr-top img.big{position:fixed;inset:10px;width:auto;height:auto;max-width:calc(100% - 20px);max-height:calc(100% - 20px);margin:auto;z-index:60;cursor:zoom-out;background:#fff}
+.prog{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:6px 0}
+.prog>div{height:100%;background:var(--accent);width:0;transition:width .2s}
+input.fromocr{background:#fff3c4;color:#5a3d00}
+@media (prefers-color-scheme:dark){input.fromocr{background:#4a3c10;color:#ffe9a8}}
 table.ocr{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
 table.ocr th{text-align:left;color:var(--muted);font-weight:600;font-size:12px;padding:4px}
 table.ocr td{border-top:1px solid var(--line);padding:4px;vertical-align:top}
@@ -139,7 +145,8 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
     <div class="sub">検査値から 追加・中止・用量調整 の検討候補を提示（CKD-MBD GL2025・腎性貧血GL2025・糖尿病治療ガイド2025・最新RCT／日本の保険診療ベース）</div>
   </div>
   <div class="btns">
-    <button id="btnPasteImport" class="primary">貼り付けで取込</button>
+    <label class="filebtn primary-l">写真から取込<input type="file" id="ocrFile" accept="image/*" multiple hidden></label>
+    <button id="btnPasteImport">貼り付けで取込</button>
     <button id="btnSample">サンプル入力</button>
     <button id="btnSave">JSON保存</button>
     <label class="filebtn">JSON読込<input type="file" id="fileLoad" accept=".json" hidden></label>
@@ -250,22 +257,25 @@ table.ocr .bad{color:var(--danger);font-size:11.5px}
 
 <div class="modal" id="ocrModal" hidden>
  <div class="box" role="dialog" aria-modal="true" aria-labelledby="ocrTitle">
-  <h2 id="ocrTitle">貼り付けで検査値を取込</h2>
+  <h2 id="ocrTitle">検査値の取込</h2>
   <p class="note" style="margin-top:0">読み取りはこの端末のブラウザ内で行い、外部には送信されません。読み取り結果は必ず確認・修正してから反映してください。</p>
+  <p class="note" id="ocrPhotoTip" hidden style="color:var(--warn)">写真の文字認識は誤りがあり得ます。下の「読み取った行」と元の写真（タップで拡大）を見比べてから反映してください。モニター画面の写真は縞模様（モアレ）で精度が落ちるため、紙に印刷したもの・スクリーンショットの方が正確です。表の部分だけを大きく写すと精度が上がります。</p>
   <div id="ocrTextWrap">
-   <p class="note" style="margin:0 0 4px">電子カルテの検査結果画面で結果の範囲を選択してコピー（Ctrl+C）し、下に貼り付け（Ctrl+V）てください。</p>
+   <p class="note" style="margin:0 0 4px">電子カルテの検査結果画面で結果の範囲を選択してコピー（Ctrl+C）し、下に貼り付け（Ctrl+V）てください。PCではスクリーンショットを撮ってこの画面でCtrl+Vを押すと、画像として読み取ります。</p>
    <textarea id="ocrPaste" style="min-height:120px" placeholder="ここに検査結果を貼り付け"></textarea>
   </div>
   <div class="ocr-top">
+   <img id="ocrImg" alt="取り込んだ写真" hidden>
    <div>
     <div id="ocrStatus" class="note">貼り付けを待っています</div>
+    <div class="prog" id="ocrProg" hidden><div id="ocrBar"></div></div>
     <label class="f" style="max-width:220px">取込先
      <select id="ocrTarget"><option value="l_">今回</option><option value="lp_">前回</option></select></label>
     <div id="ocrExtra" class="note"></div>
    </div>
   </div>
   <div id="ocrResult"></div>
-  <details style="margin-top:8px"><summary class="note">貼り付けた全文を表示</summary><pre id="ocrRaw" style="white-space:pre-wrap;font-size:11.5px;max-height:200px;overflow:auto"></pre></details>
+  <details style="margin-top:8px"><summary class="note">読み取った全文を表示</summary><pre id="ocrRaw" style="white-space:pre-wrap;font-size:11.5px;max-height:200px;overflow:auto"></pre></details>
   <div class="ocr-actions">
    <button id="ocrCancel">キャンセル</button>
    <button id="ocrApply" class="primary" disabled>チェックした項目を反映</button>
@@ -612,6 +622,7 @@ function getState(){
  return s;
 }
 function setState(s){
+ document.querySelectorAll('input.fromocr').forEach(x=>{x.classList.remove('fromocr');x.title='';});
  ['label','date','age','dw','dialca','pthassay','sbp','dbp'].forEach(k=>{$('p_'+k).value=s.patient?.[k]??(k==='pthassay'?'intact':'')});
  FLAGS.forEach(([id])=>$('f_'+id).checked=!!s.flags?.[id]);
  SYMS.forEach(([id])=>$('sy_'+id).checked=!!(s.sym?.[id]||(id==='constip'&&s.flags?.constip)));
@@ -1212,6 +1223,7 @@ function run(){
 // ---------- events ----------
 let tmr; const sched=()=>{clearTimeout(tmr);tmr=setTimeout(run,120)};
 $('formCol').addEventListener('input',e=>{
+ if(e.target.classList?.contains('fromocr')){e.target.classList.remove('fromocr');e.target.title='';}
  if(/^(l|lp)_(fe|tibc)$/.test(e.target.id)) syncTsat();
  if(/^(l|lp)_(bun_pre|bun_post|hd_time|uf|wt_post)$/.test(e.target.id)||e.target.id==='p_dw') syncKtv();
  if(e.target.id?.startsWith('t_')){const k=e.target.id.slice(2);const v=num(e.target.value);if(v!=null){T[k]=v;try{localStorage.setItem(T_KEY,JSON.stringify(T))}catch(_){}}}
@@ -1280,7 +1292,47 @@ const OCR_MAP=[
  ['bun',['尿素窒素','BUN','UN'],[5,250]],
 ];
 const LAB_NAME=Object.fromEntries(LAB_GROUPS.flatMap(g=>g[1]).map(([id,n,u])=>[id,[n,u]]));
-let ocrFound=[], ocrDate=null, ocrWhole=false, pending=new Set();
+let ocrFound=[], ocrDate=null, ocrWhole=false, pending=new Set(), ocrWorker=null;
+// 端末内OCR（Tesseract.js）。初回のみエンジンと日本語データをダウンロードし、画像は外部に送信しない
+function loadTesseract(){
+ if(window.Tesseract) return Promise.resolve();
+ return new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';sc.onload=res;sc.onerror=()=>rej(new Error('文字認識エンジンを読み込めませんでした（初回はインターネット接続が必要です）'));document.head.appendChild(sc);});
+}
+// 前処理：拡大し、RGBの最大値で明るさを取る（色付きの行の背景を白に、黒文字を黒に）
+function prepImage(img){
+ const scale=Math.min(3,Math.max(1,2600/Math.max(img.naturalWidth,img.naturalHeight)));
+ const c=document.createElement('canvas'); c.width=Math.round(img.naturalWidth*scale); c.height=Math.round(img.naturalHeight*scale);
+ const g=c.getContext('2d'); g.imageSmoothingQuality='high'; g.drawImage(img,0,0,c.width,c.height);
+ const im=g.getImageData(0,0,c.width,c.height), a=im.data;
+ for(let i=0;i<a.length;i+=4){const y=Math.max(a[i],a[i+1],a[i+2]); const v=y<110?0:y>185?255:Math.round((y-110)/75*255); a[i]=a[i+1]=a[i+2]=v;}
+ g.putImageData(im,0,0); return c;
+}
+// 複数枚の結果をまとめる（先に読んだ値を優先）
+const mergeFound=(a,b)=>{const out=[...a]; b.forEach(x=>{if(!out.some(y=>y.id===x.id)) out.push(x)}); return out;};
+async function runOcr(files){
+ files=[...files]; ocrFound=[]; let allPending=new Set(), rawAll='', date=null, whole=false;
+ $('ocrModal').hidden=false; $('ocrTextWrap').hidden=true; $('ocrPhotoTip').hidden=false; $('ocrImg').hidden=false; $('ocrProg').hidden=false;
+ $('ocrImg').src=URL.createObjectURL(files[0]); $('ocrResult').innerHTML=''; $('ocrRaw').textContent=''; $('ocrExtra').innerHTML=''; $('ocrApply').disabled=true; $('ocrBar').style.width='0';
+ const setS=(t,p)=>{$('ocrStatus').textContent=t; if(p!=null) $('ocrBar').style.width=Math.round(p*100)+'%';};
+ try{
+  setS('文字認識エンジンを準備中…',0.02);
+  await loadTesseract();
+  if(!ocrWorker){ setS('日本語データを読み込み中（初回のみ・数十秒かかることがあります）…',0.05);
+   ocrWorker=await Tesseract.createWorker(['jpn','eng'],1,{logger:m=>{ if(m.status==='recognizing text') setS($('ocrStatus').dataset.base||'文字を認識中…',0.1+0.9*m.progress); }}); }
+  for(let n=0;n<files.length;n++){
+   const base=`文字を認識中…（${n+1}/${files.length}枚目）`; $('ocrStatus').dataset.base=base; setS(base,0.1);
+   const url=URL.createObjectURL(files[n]); $('ocrImg').src=url;
+   const img=await new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error('画像を読み込めませんでした'));im.src=url;});
+   const {data}=await ocrWorker.recognize(prepImage(img));
+   rawAll+=(files.length>1?`--- ${n+1}枚目 ---\n`:'')+data.text+'\n';
+   ocrFound=mergeFound(ocrFound,parseOcr(data.text)); date=date||ocrDate; whole=whole||ocrWhole; pending.forEach(x=>allPending.add(x));
+  }
+  ocrDate=date; ocrWhole=whole; pending=new Set([...allPending].filter(id=>!ocrFound.some(f=>f.id===id)));
+  $('ocrRaw').textContent=rawAll;
+  setS(`読み取り完了：${ocrFound.length}項目（${files.length}枚）`+(ocrFound.length?'':'。読み取れない場合は「貼り付けで取込」か手入力をお使いください'),1);
+  renderOcr();
+ }catch(e){ setS('エラー：'+e.message,0); }
+}
 const isAscii=t=>/^[\x20-\x7e]+$/.test(t);
 function findAlias(line,alias){
  if(!isAscii(alias)){
@@ -1341,7 +1393,7 @@ function renderOcr(){
  const missing=LAB_GROUPS.flatMap(g=>g[1]).map(x=>x[0]).filter(id=>!['ktv','hd_time','uf','wt_post'].includes(id)&&!ocrFound.some(f=>f.id===id));
  $('ocrResult').innerHTML=ocrFound.length?`<table class="ocr"><thead><tr><th>反映</th><th>項目</th><th>読取値</th><th>読み取った行</th></tr></thead><tbody>${
   ocrFound.map((f,i)=>`<tr><td><input type="checkbox" data-i="${i}" ${f.ok?'checked':''}></td><td>${esc(LAB_NAME[f.id]?.[0]||f.id)}<div class="note">${esc(LAB_NAME[f.id]?.[1]||'')}</div></td><td><input type="number" step="any" data-v="${i}" value="${f.v}">${f.ok?'':'<div class="bad">範囲外の値：要確認</div>'}</td><td class="src">${esc(f.src)}</td></tr>`).join('')
- }</tbody></table><p class="note">${pending.size?`検査中（値なし）：${esc([...pending].map(id=>LAB_NAME[id]?.[0]||id).join('、'))}<br>`:''}読み取れなかった項目：${esc(missing.filter(id=>!pending.has(id)).map(id=>LAB_NAME[id]?.[0]).filter(Boolean).join('、'))}</p>`:'<p class="note">検査項目を読み取れませんでした。電子カルテの検査結果（項目名と値を含む行）をそのままコピーして貼り付けてください。</p>';
+ }</tbody></table><p class="note">${pending.size?`検査中（値なし）：${esc([...pending].map(id=>LAB_NAME[id]?.[0]||id).join('、'))}<br>`:''}読み取れなかった項目：${esc(missing.filter(id=>!pending.has(id)).map(id=>LAB_NAME[id]?.[0]).filter(Boolean).join('、'))}</p>`:'<p class="note">検査項目を読み取れませんでした（写真の場合は、表の部分を大きく正面から撮り直すと改善することがあります）。電子カルテの検査結果（項目名と値を含む行）をそのままコピーして貼り付けてください。</p>';
  $('ocrExtra').innerHTML=(ocrDate?`検査日の候補：<b>${ocrDate}</b> <label><input type="checkbox" id="ocrUseDate" checked>反映</label>`:'')+(ocrWhole?'<br>whole PTH の記載あり → PTH測定法を whole に設定します':'');
  $('ocrApply').disabled=!ocrFound.length;
 }
@@ -1352,13 +1404,17 @@ function parseTextImport(){
  renderOcr();
 }
 function openTextImport(text){
- $('ocrModal').hidden=false;
+ $('ocrModal').hidden=false; $('ocrTextWrap').hidden=false; $('ocrPhotoTip').hidden=true; $('ocrImg').hidden=true; $('ocrProg').hidden=true;
  $('ocrPaste').value=text||''; parseTextImport(); if(!text) $('ocrPaste').focus();
 }
 $('btnPasteImport').onclick=()=>openTextImport('');
+$('ocrFile').onchange=e=>{const fs=[...e.target.files]; e.target.value=''; if(fs.length) runOcr(fs);};
+$('ocrImg').onclick=()=>$('ocrImg').classList.toggle('big');
 $('ocrPaste').addEventListener('input',parseTextImport);
 // ページ上で Ctrl+V：文字なら貼り付け取込（入力欄での貼り付けは通常どおり）
 document.addEventListener('paste',e=>{
+ const imgs=[...(e.clipboardData?.files||[])].filter(f=>f.type.startsWith('image/'));
+ if(imgs.length){ e.preventDefault(); runOcr(imgs); return; }
  if(e.target.closest&&e.target.closest('input,textarea,select')) return;
  const t=e.clipboardData?.getData('text')||''; if(/\d/.test(t)){ e.preventDefault(); openTextImport(t); }
 });
@@ -1368,7 +1424,7 @@ $('ocrApply').onclick=()=>{
  const pre=$('ocrTarget').value;
  document.querySelectorAll('#ocrResult input[type=checkbox][data-i]').forEach(cb=>{
   if(!cb.checked) return; const i=+cb.dataset.i, v=document.querySelector(`#ocrResult input[data-v="${i}"]`).value, el=$(pre+ocrFound[i].id);
-  if(el&&!el.readOnly) el.value=v;
+  if(el&&!el.readOnly){ el.value=v; el.classList.add('fromocr'); el.title='取り込んだ値（確認後に手で直すと色が消えます）'; }
  });
  if(ocrDate&&pre==='l_'&&$('ocrUseDate')?.checked) $('p_date').value=ocrDate;
  if(ocrWhole) $('p_pthassay').value='whole';
